@@ -1,0 +1,230 @@
+---
+title: "GEM500: Carbon and Biomass estimation"
+author: "Tommaso Trotto (tommaso.trotto@ubc.ca)"
+affiliation: "University of British Columbia, Department of Forest Resource Management"
+date: "06/24/2024"
+bibliography: references.bib
+format:
+  html:
+    page-layout: full
+    code-fold: true
+    theme: flatly
+    toc: true
+    toc-float: true
+    toc-location: left
+---
+
+# Forest biomass and carbon via remote sensing
+
+Forest worldwide are integral part of the carbon cycle as sinks and sources of carbon during processes such as growth, decay, disturbance, and renewal. Their role is to capture carbon in the form of CO<sub>2</sub> from the atmosphere through photosyntesis and fix it into more stable organic structures such as roots, stems, leaves, vascular system, as so forth in the form of bounded carbon (carbon chemically bounded to other elements such as hydrogen or nitrogen). On average, the fixed carbon is estimated to make up 50% of the tree biomass, while the rest is mostly water, to oversimplify. Disturbances such as insect infestations, windthrow, and fires instead cause forests to release carbon back into the atmosphere as CO<sub>2</sub>, either by burining the standing wood or initiating decomposition processes. For example, the fire season in 2023 in Canada resulted in the release of roughly 480 Mt of carbon, which corresponds to approaximately 23% of the global wildfire carbon emission for the year. A huge amount! This tells you how important it is to manage forests to limit or prevent the occurrence of these large-scale disturbances. So what can we do? In managed forests, forest interventions influence natural dynamics or carbon sequestring and release by planting, growing, or removing biomass.
+
+As you may have hinted by now, it is crucial to keep track of carbon stocks at various scales, thus requiring different data sources, understand at what pace carbon moves, and what actors are involved in storing and releasing carbon, especially in face of exhacerbating disturbance regimes resulting from climate change. The heat around carbon has led to the development of various carbon models calibrated for specific objectives (e.g. sequestration/release) and/or site conditions (e.g. boreal forest/tropical forest). In particular, for this lab our focus is on carbon models to estimate the amount sequestred by standing vegetation. These models may take a variety of data types depending on the scale of application. For example, we could work with inventory-based models, where the data is pulled from inventory information regarding individual stands or the entire landscape. This is what the Carbon Budget Model of the Canadian Forest Sector (CBM-CFS3) does. An aspatial carbon model that takes data from the forest inventory to estimate carbon stocks and stock changes. CBM-CDF3 is the tool that is currently used by the CFS to report on the forest carbon balance of Canada's managed forests (where we have inventory data). However, we are now taking a remote sensing program, so why are we talking about aspatial data? At Loon Lake we worked with data sources and types to answer different questions, so we should try to apply those concepts here. Thankfully, other spatial models have been developed over the years to account for the greater availability or remotely sensed data that go outside managed forest boundaries.
+
+# Physiological Process Predicting Growth (3PG)
+
+Physiological Process Predicting Growth (3PG) is a model developed by @landsberg1997 and subsequentely extended by @coops1998 to allow remotely sensed data to be pulled in and therefore enlarge the scope and scale of the model. 3PG is a process-based model, which means it is deterministic in nature as it builds predictions based on a fixed series of well-known ecological processes that simulate the natural carbon dynamics in a forestry context, while having a clear ecological interpretations. The power of 3PG comes from ecological processes simplification, while maintaining their validity, and ability to scale with the data. 3PG is well suited for estimating biomass and carbon dynamics from newly grown forest patches. Meaning that 3PG really does its best at growing a forest from the ground up and gives you an estimate of stem, root, and foliage biomass at the end of a user-specified growth period. However, with this lab we are taking a step further by taking an historical perspective on 3PG and try to work out current biomass and carbon estimates assuming that the forest was planted many years ago. In a nutshell, we are going to try reconstructing highly simplified growth dynamics to get an estimate of today's carbon and biomass content of the forest in Malcolm Knapp.
+
+In summary, the lab is structured into 2 sections:
+
+1. Use 3PG to model tree growth until the end of the century considering a newly planted stand
+2. Take an historical perspective on Malcolm Knapp's forests and try estimating the current biomass and carbon content
+
+## Data sources and preparation
+
+Before we dive in, we need to better understand at what scale 3PG operates and what data is therefore needed and where we could retrieve it from. The 3PG implementation we are going to use works is by @trotsiuk2020 (`r3PG`), works at montly steps, and requires:
+-   Climate data (temperature and precipitation)
+-   Photoshyntetically-active solar radiation (PAR)
+-   Number of frost days (FD)
+-   Available soil water column (ASW)
+-   Soil fertility
+-   Elevation data (DEM - Digital Elevantion Model)
+-   Species growth parameters
+
+Ok! That are quite a few things going on here. You may understand how not only do we need to gather this data from a multitude of sources, but also harmonize it into a format that works with `r3PG`. Thankfully, we already have almost all the data we need (@tbl-sources) in the form of raster layers at a 90m spatial resolution, we just need to prepare it. In addition to this data, `r3PG` requires specific input information we'll see down the road.
+
+| Data               | Description                                       | Source             |
+|--------------------|---------------------------------------------------|--------------------|
+| Climate*           | Minimum and maxium temperature and precipitation  | @wang2016          |        
+|                    | future predictions based on SSP2.                 |                    |
+|--------------------|---------------------------------------------------|                    |
+| PAR*               | Amount of radiation that activates photosynthesis |                    |
+|                    | from 400 to 700 nm                                |                    |
+|--------------------|---------------------------------------------------|                    |
+| FD*                | Number of frost days                              |                    |
+|--------------------|---------------------------------------------------|                    |
+| ASW (max)          | Max depth of available soil water                 |                    |
+|--------------------|---------------------------------------------------|--------------------|
+| Soil fertility     | Soil fertility                                    | NCC                |
+|--------------------|---------------------------------------------------|--------------------|
+| DEM                | Elevation data from                               | ASTER satellite    |
+|--------------------|---------------------------------------------------|--------------------|
+| Species Parameters | Species-specific growth parameters for species of | Various literature |
+|                    | interest                                          |                    |
+: Summary and description of data availabel to run `r3PG`. *Available at monthly time steps. {#tbl-sources}
+
+The cool thing about `r3PG` is that it helps us keep track of carbon and biomass dynamics as our data varies over time, so in our case we could track it monthly! In addition to that, `r3PG` (as well as similar implementations) allows you to input source data predictions, like varying climate scenarios to observe how carbon and biomass change as climate changes. In this lab, we will first try to determine the amout of carbon stored at present and do a simple prediction on how it would change under a Shared Socioeconomic Pathway - 2 (SSP2) (@riahi2017) until the end of the century.
+
+As mentioned earlier, one caveat you'll encouter with `r3PG` is the data format it requires to actually run the model in the background. Unfortunately, no raster data is directly supported, so we'll have to work around that and prepare our input data as required by this implementation, that is as `dataframes`. That means that every pixel in the raster layers will correspond to an entry in our dataframes. To maintain the spatial nature of the model, we'll have to sequentially run `r3PG` for each entry, such that each entry will have a corresponding carbon/biomass value and trend over time. Then, we transform these values back into a raster layer by assignin each estimate to a empty raster, conventionally starting from the top-left pixel to the bottom-right one.
+
+## Part 1: Simulating forest growth
+
+Let's get us started! We begin this first part of the lab by simulating tree growth from the ground up assuming that Malcolm Knapp has been completely harvested and replanted this month. We begin by preparing our `sites`, that is the area where the trees are planted. A `site` for `r3PG` is defined by a set of information, including latitude, elevation, soil class, and ASW (minimum, maximum, initial) within a defined growth period. This growth period represents the period the tree will grow for on the site. If we wanted to grow the trees from the ground up, a task 3PG excels at, we would set the begin of the growing period to today until the year we want the model to stop simulating, which for this lab is the end of the century. Remember that for the entire length of the period you must have data because `r3PG` can not deal with missing values. Alternatively, for the sake of this lab, we can assign a constant value and assume it won't change throughout the growing period. For example, we are giving a soil class of 2 (i.e. sandy soil), an initial ASW equal to the max ASW, and a minimum ASW of 0.
+
+``` {r sites}
+library(r3PG)
+library(terra)
+library(dplyr)
+library(tidyr)
+library(tidyverse)
+library(reshape2)
+library(purrr)
+library(lubridate)
+
+# time frame
+period <- '2011-2040'
+from = '2024-01'
+to = '2100-01'
+
+# elevation
+dem <- rast('data/DEM.tif')
+names(dem) <- 'altitude'
+dem <- terra::as.data.frame(dem, na.rm = F)
+
+# latitude
+lat <- rast('data/Lat.tif')
+names(lat) <- 'latitude'
+lat <- terra::as.data.frame(lat, na.rm = F)
+
+# ASW
+asw_max <- rast('data/ASW_Max.tif')
+names(asw_max) <- 'asw_max'
+asw_max <- terra::as.data.frame(asw_max, na.rm = F)
+asw_min <- 0
+asw_i <- asw_max
+names(asw_i) <- 'asw_i'
+
+# prepare sites
+# the model wants all variable to be explicit
+# if we don't have values, just report a constant
+site <- data.frame(latitude = lat,
+                   altitude = dem,
+                   soil_class = 2,
+                   asw_i = asw_i,
+                   asw_min = asw_min,
+                   asw_max = asw_max,
+                   from = from,
+                   to = to)
+```
+
+Note how the raster layers were converted into `dataframes` and every single entry has `site` infromation associated to it to guarantee the spatial nature of the model.
+
+It's now time to prepare our "species" dataset! `r3PG` requires information on when the trees were planted, the planting density, the fertility of the soil, and what the initial seedling biomass was to start growing them. In Lalcomn Knapp we are primarily working with Douglas fir, Western red cedar, and Western hemlock, so we'll input values for all these species. We set the planting date to today because we are just starting growing the trees. We then assume an initial number of stem per hectares of 5000, and a biomass partitioning among stem, root, and foliage equal to 6, 3, and 1 Mg/ha. Note that because we have 3 species, we'll have 3 different biomass/carbon estimates for each species.
+
+.....As you may ahve noticed, we have an "age" layer for all forested land in canada (@maltman2023) as part of the National Terrastrial Ecosystem Monitoring System series of datasets (@hermosilla2016). This data was redacted in 2023, so we'll have to correct for the current year as of January 2024......
+
+``` {r species}
+spp <- c('PSEU.MEN', 'THUJ.PLI', 'TSUG.HET')
+
+# # date planted
+# age <- rast('data/age.tif')
+# names(age) <- 'age'
+# age <- terra::as.data.frame(age, na.rm = F)
+# # convert to yyyy-mm format
+# dates <- years(as.integer(age$age) + 1)
+# planted <- as.Date("2024-01-01") - dates
+# planted <- format(planted, "%Y-%m")
+
+# soil fertility
+ftl <- rast('data/FTL.tif')
+names(ftl) <- 'fertility'
+ftl <- terra::as.data.frame(ftl, na.rm = F)
+
+# prepare species
+species <- data.frame(spp1 = spp[1],
+                      spp2 = spp[2],
+                      spp3 = spp[3],
+                      planted = "2024-07",
+                      fertility = ftl,
+                      stems_n = 5000,
+                      biom_stem = 6,
+                      biom_root = 3,
+                      biom_foliage = 1)
+# reshape dataset so all data is repeated for each species
+# important for downstream estimation tasks
+species <- melt(species,
+                id.vars=names(species)[4:ncol(species)],
+                value.name='species') %>%
+           select(-variable) %>%
+           relocate(species)
+```
+
+For now that's all we need for the tree species. Let's start working on the climate modifiers and input what the projected climate will be until the end of the century. This step will allow `r3PG` to develop carbon and biomass projections in line with well established climate scenarios. As mentioned earlier, we have data on climate projections acquired using a SSP2 scenario.
+
+```{r climate}
+# let's these steps for the other rasters
+# i'll implement a function to make the code
+# less lengthy, but any other approach would work
+needed <- c('Tmax', 'Tmin', 'NFFD', 'PPT')
+build <- function(need) {
+  f <- list.files('./data/ssp2',
+                pattern = paste0(need, '.*', period),
+                full.names = T)
+  # open each file
+  dfs <- lapply(seq_along(f), function(i) {
+    r <- rast(f[i])
+    # name <- paste0('month', i)
+    names(r) <- i
+    r <- terra::as.data.frame(r, na.rm = F)
+  })
+  # merge into single dataframe and conver to long format
+  out <- dfs %>% 
+    bind_cols() %>% 
+    melt() %>%
+    rename(!!sym(need) := value) %>%
+    select(-variable)
+}
+climate <- lapply(needed, function(need) {
+  build(need)
+})
+
+# put them in a single dataframe that can be used later on
+climate <- bind_cols(climate)
+
+# rename to match r3PG expectations
+names(climate) <- c('tmp_max', 'tmp_min', 'frost_days', 'prcp')
+```
+
+Climate data is now ready! We are dealing with quite some data here. More than 100K records! Some will be NA values, but we'll deal with those later to maintain the order with which we collected the data in the first place. This is important to maintain the `r3PG` spatial nature. That is, each pixel has a record of data and each pixel will have a corresponding carbon/biomass value. Pretty cool!
+
+We are down to the last step before running the model! Now it's time to imput the species growth parametes. We don't need to know now what parameters are associated to each species, because there are a lot. If you're interested, explore the data that comes with this lab or ask around :). Some parameters that are important to know are: _____. Again, these parameters allow us to develop species-specific growth curves with an associated carbon/biomass content. This is pretty easy, the file is ready so we simply import it and pick the species we are interested in.
+
+``` {r parameters}
+# species file
+param <- read_csv('data/Final_Parameters.csv', show_col_types = F) %>%
+  select(all_of(spp))  # latin names
+```
+
+## Model developement
+
+It's finally time to dive in into the model itself! We have all the data we need, each record associated to a single pixel. The issue we are going to face now is related to actual spatial nature of the model itself. `r3PG` is not a spatial model itself, but the workaround is to treat each pixel indvidually and obtain a value for each, giving the model an actual spatial nature! To do so, we'll have to do some iterations and run the same model over and over for each pixel. This can be quite tedious if you're working with large dataset, but our study area is pretty small, so it shouldn't be too bad.
+
+For now, let's finalize the data we have. `r3PG` provides a set of functions to prepare the data such that it's accepted by the model. These functions all start with `prepare_`, so we can apply each to our dataset. In addition we have to specify a begin and end date for the model, so that it know the temporal window we want. We are using the same interval as the data, for consistency.
+
+``` {r prepare}
+site <- prepare_site(site)
+species <- prepare_species(species)
+climate <- prepare_climate(climate, from, to)
+param <- prepare_parameters(param)
+```
+
+Running the model now is pretty straightforward. Just use the `run_3PG` function...but our aim again is to set it up for each pixel. So let's do that with a loop.
+
+```{r model runner}
+# basic usage for 1 single pixel
+out_3pg <- run_3PG(site = site[1,],
+                   species = species[1,],
+                   climate = climate[1,],
+                   parameters = parameters[1,],
+                   check_input = T,
+                   df_out = T)
+```
