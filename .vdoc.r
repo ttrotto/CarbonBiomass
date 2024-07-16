@@ -63,6 +63,14 @@
 #
 #
 #
+#
+#
+#
+#
+#
+#
+#
+#
 library(r3PG)
 library(terra)
 library(dplyr)
@@ -72,10 +80,10 @@ library(reshape2)
 library(purrr)
 library(lubridate)
 
-# time fram
+# time frame
 period <- '2011-2040'
-from = '2011-01'
-to = '2040-01'
+from = '2024-01'
+to = '2100-01'
 
 # elevation
 dem <- rast('data/DEM.tif')
@@ -111,34 +119,43 @@ site <- data.frame(latitude = lat,
 #
 #
 #
+#
+#
+#
+#
 spp <- c('PSEU.MEN', 'THUJ.PLI', 'TSUG.HET')
 
-# date planted
-age <- rast('data/age.tif')
-names(age) <- 'age'
-age <- terra::as.data.frame(age, na.rm = F)
-# convert to yyyy-mm format
-dates <- years(as.integer(age$age) + 1)
-planted <- as.Date("2024-01") - dates
-planted <- format(planted, "%Y-%m")
+# # date planted
+# age <- rast('data/age.tif')
+# names(age) <- 'age'
+# age <- terra::as.data.frame(age, na.rm = F)
+# # convert to yyyy-mm format
+# dates <- years(as.integer(age$age) + 1)
+# planted <- as.Date("2024-01-01") - dates
+# planted <- format(planted, "%Y-%m")
 
 # soil fertility
 ftl <- rast('data/FTL.tif')
-names(ftl) <- 'ftl'
+names(ftl) <- 'fertility'
 ftl <- terra::as.data.frame(ftl, na.rm = F)
 
 # prepare species
 species <- data.frame(spp1 = spp[1],
                       spp2 = spp[2],
                       spp3 = spp[3],
-                      planted = planted,
+                      planted = "2024-07",
                       fertility = ftl,
-                      stems_n = 800,
+                      stems_n = 5000,
                       biom_stem = 6,
                       biom_root = 3,
                       biom_foliage = 1)
 # reshape dataset so all data is repeated for each species
-species <- melt()
+# important for downstream estimation tasks
+species <- melt(species,
+                id.vars=names(species)[4:ncol(species)],
+                value.name='species') %>%
+           select(-variable) %>%
+           relocate(species)
 #
 #
 #
