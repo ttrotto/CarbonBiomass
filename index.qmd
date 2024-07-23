@@ -42,24 +42,15 @@ Before we dive in, we need to better understand at what scale 3PG operates and w
 
 Ok! That are quite a few things going on here. You may understand how not only do we need to gather this data from a multitude of sources, but also harmonize it into a format that works with `r3PG`. Thankfully, we already have almost all the data we need (@tbl-sources) in the form of raster layers at a 90m spatial resolution, we just need to prepare it. In addition to this data, `r3PG` requires specific input information we'll see down the road.
 
-| Data               | Description                                       | Units     | Source             |
-|--------------------|---------------------------------------------------|-----------|--------------------|
-| Climate*           | Minimum and maxium temperature and precipitation  | Celcius   | @wang2016          |         
-|                    | future predictions based on SSP2.                 | mm        |                    | 
-|--------------------|---------------------------------------------------|-----------|                    |
-| PAR*               | Amount of radiation that activates photosynthesis | MJ/m2/d   |                    |  
-|                    | from 400 to 700 nm based on SSP2.                 |           |                    | 
-|--------------------|---------------------------------------------------|-----------|                    | 
-| FD*                | Number of frost days                              | days      |                    | 
-|--------------------|---------------------------------------------------|-----------|                    | 
-| ASW (max)          | Max depth of available soil water                 | mm        |                    | 
-|--------------------|---------------------------------------------------|-----------|--------------------| 
-| Soil fertility     | Soil fertility                                    |           |                    | 
-|--------------------|---------------------------------------------------|-----------|--------------------| 
-| DEM                | Elevation data from                               | m         | ASTER satellite    | 
-|--------------------|---------------------------------------------------|-----------|--------------------| 
-| Species Parameters | Species-specific growth parameters for species of |           | Various literature | 
-|                    | interest                                          |           |                    | 
+| Data               | Description                                                                         | Units              | Source             |
+|--------------------|-------------------------------------------------------------------------------------|--------------------|--------------------|
+| Climate*           | Minimum and maxium temperature and precipitation future predictions based on SSP2   | Celcius, mm        | @wang2016          |
+| PAR*               | Amount of radiation that activates photosynthesis from 400 to 700 nm based on SSP2. | Mj/m<sup>2</sup>/d | @wang2016          |
+| FD*                | Number of frost days                                                                | days               | @wang2016          |
+| ASW (max)          | Max depth of available soil water                                                   | mm                 | @wang2016          |
+| Soil fertility     | Soil fertility                                                                      |                    |                    |
+| DEM                | Elevation data                                                                      | m                  | ASTER satellite    |
+| Species Parameters | Species-specific growth parameters for species of interest                          |                    | Various literature |
 : Summary and description of data available to run `r3PG`. *Available at monthly time steps. {#tbl-sources}
 
 The cool thing about `r3PG` is that it helps us keep track of carbon and biomass dynamics as our data varies over time, so in our case we could track it monthly! In addition to that, `r3PG` (as well as similar implementations) allows you to input source data predictions, like varying climate scenarios to observe how carbon and biomass change as climate changes. In this lab, we will first try to determine the amout of carbon stored at present and do a simple prediction on how it would change under a Shared Socioeconomic Pathway - 2 (SSP2) (@riahi2017) until the end of the century.
@@ -70,7 +61,7 @@ As mentioned earlier, one caveat you'll encounter with `r3PG` is the data format
 
 Let's get us started! We begin this first part of the lab by simulating tree growth from the ground up assuming that Malcom Knapp has been completely harvested and replanted at the beginning of the year. We begin by preparing our `sites`, that is the area where the trees are planted. A `site` for `r3PG` is defined by a set of attributes, including latitude, elevation, soil class, and ASW (minimum, maximum, initial) within a defined growth period. This growth period represents the period the tree will grow for on the site. If we wanted to grow the trees from the ground up, a task 3PG excels at, we would set the begin of the growing period to today until the year we want the model to stop simulating, which for this lab is the end of the century. Remember that for the entire length of the period you must have data because `r3PG` can not deal with missing attributes. Alternatively, for the sake of this lab, we can assign a constant value and assume it won't change throughout the growing period. For example, we are giving a soil class of 2 (i.e. sandy soil), an initial ASW equal to the max ASW, and a minimum ASW of 0 millimeter.
 
-Note that, while there are many other ways to code this chunk (and the previous), what we present is a very straightforward way, especially if you do not feel super conmfortable with your coding skills.
+Note how the raster layers were converted into `dataframes` and every single entry has now `site` information associated to it (@fig-dem, @tbl-site) to conserve the spatial nature of the model. Furthermore, some entries have NA values. We will see why we are keeping those later.
 
 ``` {r libraries}
 #| include: false
@@ -88,6 +79,10 @@ library(parallel)
 ```
 
 ``` {r sites}
+#| label: fig-dem
+#| fig-cap: "Elevation map (m) for Malcolm Knapp"
+# Note that, while there are many other ways to code these chunks, what we present is a very straightforward way, especially if you do not feel super comfortable with your coding skills.
+
 # time frame
 period <- '2011-2040'
 from <- '2024-01'
@@ -102,6 +97,7 @@ lat <- terra::as.data.frame(lat, na.rm = F)
 
 # elevation
 dem <- rast('data/DEM.tif')
+plot(dem)
 names(dem) <- 'altitude'
 dem <- terra::as.data.frame(dem, na.rm = F)
 
@@ -124,16 +120,23 @@ site <- data.frame(latitude = lat,
                    asw_max = asw_max,
                    from = from,
                    to = to)
+
+```
+
+``` {r site_df}
+#| echo: false
+#| label: tbl-site
+#| tbl-cap: Tabular version of site data for Malcolm Knapp
+
 head(site)
 ```
 
-Note how the raster layers were converted into `dataframes` and every single entry has `site` information associated to it to conserve the spatial nature of the model. Furthermore, some entries have NA values. We will see why we are keeping those later.
-
-It's now time to prepare our "species" dataset! `r3PG` requires information on when the trees were planted, the planting density, the fertility of the soil, and what the initial seedling biomass was to start growing them. In Malcom Knapp we are primarily working with Douglas fir, Western red cedar, and Western hemlock, so we'll input values for all these species. We set the planting date to the beginning of the year because we are just starting growing the trees. We then assume an initial number of stem per hectares of 5000 (conservative), and a biomass partitioning among stem, root, and foliage equal to 6, 3, and 1 Mg/ha. Note that because we have 3 species, we'll have 3 different biomass/carbon estimates, one for each species.
-
-.....As you may have noticed, we have an "age" layer for all forested land in Canada (@maltman2023) as part of the National Terrestrial Ecosystem Monitoring System series of datasets (@hermosilla2016). This data was redacted in 2023, so we'll have to correct for the current year as of January 2024......
+It's now time to prepare our "species" dataset! `r3PG` requires information on when the trees were planted, the planting density, the fertility of the soil, and what the initial seedling biomass was to start growing them. In Malcom Knapp we are primarily working with Douglas fir, Western red cedar, and Western hemlock, so we'll input values for all these species. We set the planting date to the beginning of the year because we are just starting growing the trees. We then assume an initial number of stem per hectares of 5000 (conservative), and a biomass partitioning among stem, root, and foliage equal to 6, 3, and 1 Mg/ha. Note that because we have 3 species, we'll have 3 different biomass/carbon estimates, one for each species (@tbl-species).
 
 ``` {r species}
+#| label: tbl-species
+#| tbl-cap: Species dataset for every site in Malcolm Knapp
+
 spp <- c('PSEU.MEN', 'THUJ.PLI', 'TSUG.HET')  # latin names
 
 # soil fertility
@@ -161,10 +164,13 @@ species <- melt(species,
 head(species)
 ```
 
-For now that's all we need for the tree species. Let's start working on the climate modifiers and input what the projected climate will be until the end of the century. This step will allow `r3PG` to develop carbon and biomass projections in line with well established climate scenarios. As mentioned earlier, we have data using a SSP2 scenario. Note that for simplicity, we are considering the the climate data between 2011 and 2040 remain constant until the end of the century. In a real-case situation, you would want to follow the 20-year climate normals and re-run the model for every 20-year period while "carrying over" the biomass from the previous period in order to continuously grow the trees (instead of starting from the ground up at every 20-year interval).
+For now that's all we need for the tree species. Let's start working on the climate modifiers and input what the projected climate will be until the end of the century. This step will allow `r3PG` to develop carbon and biomass projections in line with well established climate scenarios. As mentioned earlier, we have data using a SSP2 scenario. Note that for simplicity, we are considering the the climate data between 2011 and 2040 remain constant until the end of the century. In a real-case situation, you would want to follow the 20-year climate normals and re-run the model for every 20-year period while "carrying over" the biomass from the previous period in order to continuously grow the trees (instead of starting from the ground up at every 20-year interval) (@tbl-climate).
 
 ```{r climate}
 #| warning: false
+#| label: tbl-climate
+#| tbl-cap: Climate dataset for every site in Malcolm Knapp
+
 # I'll implement a function to make the code
 # less lengthy, but any other approach would work
 needed <- c('Tmin', 'Tmax', 'PPT', 'Rad', 'NFFD')
@@ -200,9 +206,12 @@ head(climate)
 
 Climate data is now ready! We are dealing with quite some data here. More than 100K records! Some will be NA values, but we'll deal with those later to maintain the order with which we collected the data in the first place. This is important to maintain the `r3PG` spatial nature. That is, each pixel has a record of data and each pixel will have a corresponding carbon/biomass value. Pretty cool!
 
-We are down to the last step before running the model! Now it's time to input the species growth parameters. We don't need to know in details what all the parameters mean because there are lots. If you're interested, explore the data that comes with this lab or check `i_parameters` for a description of each. A parameter that is very important to know is quantum canopy efficiency (aka "alpha"). Simply put, this parameters regulates how efficient the foliage in the canopy is to utilize incoming solar radiation to photosynthesize nutrients. Changing this parameter by any small amount will have a large impact on the biomass/carbon predictions. In general, these parameters allow us to develop species-specific growth curves with an associated carbon/biomass content. This step of our implementation is pretty easy, the file is ready to go, so we simply import it and pick the species we are interested in.
+We are down to the last step before running the model! Now it's time to input the species growth parameters (@tbl-parameters) (note that only 6 are displayed, but there are dozens!). We don't need to know in details what all the parameters mean because there are lots. If you're interested, explore the data that comes with this lab or check `i_parameters` for a description of each. A parameter that is very important to know is quantum canopy efficiency (aka "alpha"). Simply put, this parameters regulates how efficient the foliage in the canopy is to utilize incoming solar radiation to photosynthesize nutrients. Changing this parameter by any small amount will have a large impact on the biomass/carbon predictions. In general, these parameters allow us to develop species-specific growth curves with an associated carbon/biomass content. This step of our implementation is pretty easy, the file is ready to go, so we simply import it and pick the species we are interested in.
 
 ``` {r parameters}
+#| label: tbl-parameters
+#| tbl-cap: Parameter dataset for each of the 3 species of interest in Malcolm Knapp
+
 # species file
 select_all <- c('parameter', spp)
 param <- read_csv('data/Final_Parameters.csv', show_col_types = F) %>%
@@ -249,18 +258,22 @@ Great! We finally managed to run 3PG until the end of the century! As you can ob
 p <- ggplot(stem_bc, aes(date, value)) +
   geom_line(linewidth = 1) +
   theme_classic() +
-  labs(x = "Years", y = "Biomass (Mg/ha)")
+  labs(x = "Years", y = "Biomass (tDM/ha)")
 p
 ```
 
 It seems we are seeing a nice increase in biomass over time, with a plateau around year 2060. Why is that?
 
-Now to a more fun task. We have to repeat this operation for every single pixel in the area. Let's write a function to do all this and run it for every pixel. We are going to produce quite a few new data here. In the code chunk below we are simply going to repeat what we did for the single-pixel run, and then run multiple instances of it for each pixel, assuming that the only species present if Douglas Fir. We will then make a map of the predicted biomass in January 2010. To do so, we will have to create a new raster object starting from the biomass dataframe we have. You can achieve this with the package `terra` that we previously used.
+Now to a more fun task. We have to repeat this operation for every single pixel in the area. Let's write a function to do all this and run it for every pixel. We are going to produce quite a few new data here. In the code chunk below we are simply going to repeat what we did for the single-pixel run, and then run multiple instances of it for each pixel, assuming that the only species present if Douglas Fir. We will then make a map of the predicted biomass in January 2010. To do so, we will have to create a new raster object starting from the biomass dataframe we have (@fig-biomass-map). You can achieve this with the package `terra` that we previously used.
 
 ``` {r model}
+#| label: fig-biomass-map
+#| fig-cap: "Map of biomass prediction (tDM/ha) for Douglas Fir in Malcom Knapp in 2100."
+
 # prepare function to run the model
 # we repeat the same code of above for simplicity
-run_model <- function(pixel) {
+# note that 
+run_model <- function(pixel, from, to) {
   # if empty, don't run
   if (isFALSE(complete.cases(site[pixel, ]))) {
     df_null <- data.frame(date = as.Date('1900-01-01'),
@@ -273,7 +286,7 @@ run_model <- function(pixel) {
   # prepare climate data for site
   pixels <- sapply(0:11, function(i) 41 + (offset * i))
   climate_pixel <- climate[pixels, ]
-  climate_pixel <- prepare_climate(climate_pixel, from = from, to = '2100-01')
+  climate_pixel <- prepare_climate(climate_pixel, from = from, to = to)
   output <- run_3PG(site = site[pixel,],
                     species = species[pixel, ],
                     climate = climate_pixel,
@@ -287,10 +300,13 @@ run_model <- function(pixel) {
 
 # run the model for every pixel
 # let's take advantage of more cores in your machine to speed everything up
-output <- mclapply(seq_len(nrow(site)),
-                   run_model,
-                   mc.cores = 10,
-                   mc.cleanup = T) %>%
+output <- mcmapply(run_model,
+                   pixel = seq_len(nrow(site)),
+                   from = rep(from, nrow(site)),
+                   to = rep(to, nrow(site)),
+                   mc.cores = 10L,
+                   mc.cleanup = T,
+                   SIMPLIFY = F) %>%
   bind_rows()
 
 # make a raster object
@@ -302,7 +318,7 @@ r <- output %>%
          .before = z) %>%
   rast(type='xyz', crs='epsg:3005')
 
-plot(r, legend = T, main = "Biomass prediction (Mg/ha) for Douglas Fir in Malcom Knapp in 2100.")
+plot(r)
 ```
 
 To repeat this analysis for the other species, we run the same code but change the input species. If you want to be more fancy, you can re-write the function to accept multiple species and output a raster stack, that is a collection of rasters with the same coordinate reference system, extend, and resolution stored in a single object.
@@ -310,8 +326,125 @@ To repeat this analysis for the other species, we run the same code but change t
 
 ## Part 2: Historical biomass reconstruction
 
-Now that we have completed the first part of the lab, recall we want to know what is today's biomass across Malcolm Knapp. To do that using 3PG, we have to reconstruct the history of the site
+Now that we have completed the first part of the lab, recall we want to know what is today's biomass across Malcolm Knapp. To do that using 3PG, we have to reconstruct the history of the site by retrieving the age of the trees and assume the model's variables remained unchanged for the entire length of the simulation. Thankfully, we have age information for Canada's treed area at a 30m resolution (@maltman) (@fig-age), which is great! Note the presence of gaps due to (mostly) absence of vegetation. Given this piece of information, let's refine the length of the growth period for each pixel from when the trees started growing to the beginning of 2024. We do this because each pixel will have a different age value compared to itsd neighbors. Then, we'll adjust the site and species values to account for the age value of each pixel.
 
+``` {r age}
+#| label: fig-age
+#| fig-cap: "Age distribution at 30m for Malcolm Knapp"
+
+# import age
+age <- rast('data/age.tif')
+plot(age)
+names(age) <- 'age'
+age <- terra::as.data.frame(age, na.rm = F)
+
+# adjust from and to
+to <- as.Date("2024-01-01")
+dates <- years(as.integer(age$age) + 1)  # round it up
+from <- to - dates
+from <- format(from, "%Y-%m")
+
+# fix site dataset
+site$from <- from
+site$to <- to
+
+# fix species dataset
+species$planted <- from
+```
+
+Now that we have fixed the site and species dataset with the new age values, assuming that they were all planted, we have to change the projection length for the climate dataset inside our `run_model` function and then we are ready to run it and estimate today's biomass per pixel!
+
+``` {r biomass_today}
+#| label: fig-biomass-today
+#| fig-cap: "Map of biomass prediction (tDM/ha) for Douglas Fir in Malcom Knapp in 2024."
+
+output <- mcmapply(run_model,
+                   pixel = seq_len(nrow(site)),
+                   from = from,
+                   to = rep(to, nrow(site)),
+                   mc.cores = 10L,
+                   mc.cleanup = T,
+                   SIMPLIFY = F) %>%
+  bind_rows()
+
+# make a raster object
+r <- output %>%
+  select(value) %>%
+  rename(z = value) %>%
+  mutate(x = coords[, 1],
+         y = coords[, 2],
+         .before = z) %>%
+  rast(type='xyz', crs='epsg:3005')
+
+plot(r)
+```
+
+Note how the results we obtained closely mirrors the predicted biomass in 2100 we estimated earlier. This results shows how dependent the model is on the input data. By giving it the same climate dataset, which is drawn by climate projection based on SSP2 (@tbl-sources), the output we obtain is pretty similar except for the missing values where we don't have age information, and the darker areas that have probably been harvested recently.
+
+
+## Part 3: Comparing 
+
+Now that we have calculated both projected and current biomass content at the pixel level for Malcolm Knapp, let's experiment a bit by comparing the results we obtained from Lab 1 at Loon Lake with what we just produced. Our aim here is to compare the biomass values we just obtained with what we can infer from the plots we set up a while ago. In particular, we are going to extract volume information for each tree in your plots based on diameter at breast height (DBH) and height - by assuming stems to resemble a perfect cone, which is unrealistic (@eq-volume) - and compare them to the pixel-level values we have. This would help us reflect on the data type, source, and scale at which such information is representative of the local environment, that is whether we trust the data we have for the scale we are working at.
+
+
+$$
+\frac{1}{3}\pi r^{2} h
+$$ {#eq-volume}
+
+So let's start by retrieving the data we have on the trees we sampled at Loon Lake.
+
+```{r plots}
+#| message: false
+
+library(sf)
+library(googlesheets4)
+library(readxl)
+library(leaflet)
+
+# no authentication required
+gs4_deauth()
+
+# read sheet
+tally <-read_sheet("1M2BZIHRX_D_T4J8ji0B8pVnSJr6yMEqdvVCB9ryAWfc", sheet='DATA')
+
+# add volume info
+tally <- tally %>% 
+  mutate(volume = (1/3) * pi * ((dbh / 2) ^ 2) * height)
+
+# get average per plot
+by_plot <- tally %>%
+  group_by(plot) %>%
+  summarize(mean = mean(volume))
+by_plot
+```
+
+To compare the values we got in the field with the pixel-level biomass content, we need to georeference the plot centers, that is assign geospatial information to each plot in order to properly place them on the map. We did this in the field, so let's add this information to our current dataframe (@fig-plots).
+
+```{r georef}
+#| label: fig-plots
+#| fig-cap: "Georeferenced plots in Malcolm Knapp"
+
+geo <- read_excel('data/plot_centers.xlsx')
+by_plot <- by_plot %>%
+  mutate(x = geo$x,
+         y = geo$y) %>%
+  st_as_sf(coords = c("x", "y"), crs = 3005) %>%
+  st_buffer(11.28)  # plot radius
+
+# plot
+m <- plet(vect(by_plot))
+m
+```
+
+To finalize the comparison, let's take the pixels corresponding to the location of our plots. We can do this by using the geospatial information attached to every plot.
+
+``` {r comparison}
+#| label: fig-comparison
+#| fig-cap: "Comparison of biomass values retrieved from plot data versus pixel-level estimations with r3PG"
+
+# extract pixel-level information for each plot
+
+```
 
 
 ### References

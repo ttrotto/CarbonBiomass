@@ -89,7 +89,48 @@ div.csl-indent {
 <script src="index_files/libs/bootstrap/bootstrap.min.js"></script>
 <link href="index_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="index_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<link href="index_files/libs/htmltools-fill-0.5.8.1/fill.css" rel="stylesheet">
+<script src="index_files/libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+<script src="index_files/libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<link href="index_files/libs/leaflet-1.3.1/leaflet.css" rel="stylesheet">
+<script src="index_files/libs/leaflet-1.3.1/leaflet.js"></script>
+<link href="index_files/libs/leafletfix-1.0.0/leafletfix.css" rel="stylesheet">
+<script src="index_files/libs/proj4-2.6.2/proj4.min.js"></script>
+<script src="index_files/libs/Proj4Leaflet-1.0.1/proj4leaflet.js"></script>
+<link href="index_files/libs/rstudio_leaflet-1.3.1/rstudio_leaflet.css" rel="stylesheet">
+<script src="index_files/libs/leaflet-binding-2.2.2/leaflet.js"></script>
+<script src="index_files/libs/leaflet-providers-2.0.0/leaflet-providers_2.0.0.js"></script>
+<script src="index_files/libs/leaflet-providers-plugin-2.2.2/leaflet-providers-plugin.js"></script>
 
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -107,7 +148,8 @@ div.csl-indent {
   <li><a href="#data-sources-and-preparation" id="toc-data-sources-and-preparation" class="nav-link" data-scroll-target="#data-sources-and-preparation">Data sources and preparation</a></li>
   <li><a href="#part-1-simulating-forest-growth" id="toc-part-1-simulating-forest-growth" class="nav-link" data-scroll-target="#part-1-simulating-forest-growth">Part 1: Simulating forest growth</a></li>
   <li><a href="#model-developement" id="toc-model-developement" class="nav-link" data-scroll-target="#model-developement">Model developement</a></li>
-  <li><a href="#part-2-historical-biomass-reconstruction" id="toc-part-2-historical-biomass-reconstruction" class="nav-link" data-scroll-target="#part-2-historical-biomass-reconstruction">Part 2: Historical biomass reconstruction</a>
+  <li><a href="#part-2-historical-biomass-reconstruction" id="toc-part-2-historical-biomass-reconstruction" class="nav-link" data-scroll-target="#part-2-historical-biomass-reconstruction">Part 2: Historical biomass reconstruction</a></li>
+  <li><a href="#part-3-comparing" id="toc-part-3-comparing" class="nav-link" data-scroll-target="#part-3-comparing">Part 3: Comparing</a>
   <ul class="collapse">
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
   </ul></li>
@@ -175,10 +217,10 @@ Table&nbsp;1: Summary and description of data available to run <code>r3PG</code>
 <div aria-describedby="tbl-sources-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <table class="table">
 <colgroup>
-<col style="width: 19%">
-<col style="width: 50%">
-<col style="width: 10%">
-<col style="width: 19%">
+<col style="width: 13%">
+<col style="width: 58%">
+<col style="width: 13%">
+<col style="width: 13%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -191,63 +233,27 @@ Table&nbsp;1: Summary and description of data available to run <code>r3PG</code>
 <tbody>
 <tr class="odd">
 <td>Climate*</td>
-<td>Minimum and maxium temperature and precipitation</td>
-<td>Celcius</td>
+<td>Minimum and maxium temperature and precipitation future predictions based on SSP2</td>
+<td>Celcius, mm</td>
 <td><span class="citation" data-cites="wang2016">Wang et al. (<a href="#ref-wang2016" role="doc-biblioref">2016</a>)</span></td>
 </tr>
 <tr class="even">
-<td></td>
-<td>future predictions based on SSP2.</td>
-<td>mm</td>
-<td></td>
-</tr>
-<tr class="odd">
-<td>——————–</td>
-<td>—————————————————</td>
-<td>———–</td>
-<td></td>
-</tr>
-<tr class="even">
 <td>PAR*</td>
-<td>Amount of radiation that activates photosynthesis</td>
-<td>MJ/m2/d</td>
-<td></td>
-</tr>
-<tr class="odd">
-<td></td>
-<td>from 400 to 700 nm based on SSP2.</td>
-<td></td>
-<td></td>
-</tr>
-<tr class="even">
-<td>——————–</td>
-<td>—————————————————</td>
-<td>———–</td>
-<td></td>
+<td>Amount of radiation that activates photosynthesis from 400 to 700 nm based on SSP2.</td>
+<td>Mj/m<sup>2</sup>/d</td>
+<td><span class="citation" data-cites="wang2016">Wang et al. (<a href="#ref-wang2016" role="doc-biblioref">2016</a>)</span></td>
 </tr>
 <tr class="odd">
 <td>FD*</td>
 <td>Number of frost days</td>
 <td>days</td>
-<td></td>
+<td><span class="citation" data-cites="wang2016">Wang et al. (<a href="#ref-wang2016" role="doc-biblioref">2016</a>)</span></td>
 </tr>
 <tr class="even">
-<td>——————–</td>
-<td>—————————————————</td>
-<td>———–</td>
-<td></td>
-</tr>
-<tr class="odd">
 <td>ASW (max)</td>
 <td>Max depth of available soil water</td>
 <td>mm</td>
-<td></td>
-</tr>
-<tr class="even">
-<td>——————–</td>
-<td>—————————————————</td>
-<td>———–</td>
-<td>——————–</td>
+<td><span class="citation" data-cites="wang2016">Wang et al. (<a href="#ref-wang2016" role="doc-biblioref">2016</a>)</span></td>
 </tr>
 <tr class="odd">
 <td>Soil fertility</td>
@@ -256,34 +262,16 @@ Table&nbsp;1: Summary and description of data available to run <code>r3PG</code>
 <td></td>
 </tr>
 <tr class="even">
-<td>——————–</td>
-<td>—————————————————</td>
-<td>———–</td>
-<td>——————–</td>
-</tr>
-<tr class="odd">
 <td>DEM</td>
-<td>Elevation data from</td>
+<td>Elevation data</td>
 <td>m</td>
 <td>ASTER satellite</td>
 </tr>
-<tr class="even">
-<td>——————–</td>
-<td>—————————————————</td>
-<td>———–</td>
-<td>——————–</td>
-</tr>
 <tr class="odd">
 <td>Species Parameters</td>
-<td>Species-specific growth parameters for species of</td>
+<td>Species-specific growth parameters for species of interest</td>
 <td></td>
 <td>Various literature</td>
-</tr>
-<tr class="even">
-<td></td>
-<td>interest</td>
-<td></td>
-<td></td>
 </tr>
 </tbody>
 </table>
@@ -296,48 +284,69 @@ Table&nbsp;1: Summary and description of data available to run <code>r3PG</code>
 <section id="part-1-simulating-forest-growth" class="level2">
 <h2 class="anchored" data-anchor-id="part-1-simulating-forest-growth">Part 1: Simulating forest growth</h2>
 <p>Let’s get us started! We begin this first part of the lab by simulating tree growth from the ground up assuming that Malcom Knapp has been completely harvested and replanted at the beginning of the year. We begin by preparing our <code>sites</code>, that is the area where the trees are planted. A <code>site</code> for <code>r3PG</code> is defined by a set of attributes, including latitude, elevation, soil class, and ASW (minimum, maximum, initial) within a defined growth period. This growth period represents the period the tree will grow for on the site. If we wanted to grow the trees from the ground up, a task 3PG excels at, we would set the begin of the growing period to today until the year we want the model to stop simulating, which for this lab is the end of the century. Remember that for the entire length of the period you must have data because <code>r3PG</code> can not deal with missing attributes. Alternatively, for the sake of this lab, we can assign a constant value and assume it won’t change throughout the growing period. For example, we are giving a soil class of 2 (i.e.&nbsp;sandy soil), an initial ASW equal to the max ASW, and a minimum ASW of 0 millimeter.</p>
-<p>Note that, while there are many other ways to code this chunk (and the previous), what we present is a very straightforward way, especially if you do not feel super conmfortable with your coding skills.</p>
+<p>Note how the raster layers were converted into <code>dataframes</code> and every single entry has now <code>site</code> information associated to it (<a href="#fig-dem" class="quarto-xref">Figure&nbsp;1</a>, <a href="#tbl-site" class="quarto-xref">Table&nbsp;2</a>) to conserve the spatial nature of the model. Furthermore, some entries have NA values. We will see why we are keeping those later.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># time frame</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>period <span class="ot">&lt;-</span> <span class="st">'2011-2040'</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>from <span class="ot">&lt;-</span> <span class="st">'2024-01'</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>to <span class="ot">&lt;-</span> <span class="st">'2100-01'</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># latitude</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>lat <span class="ot">&lt;-</span> <span class="fu">rast</span>(<span class="st">'data/Lat.tif'</span>)</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># store coordinates for later</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>coords <span class="ot">&lt;-</span> <span class="fu">crds</span>(lat, <span class="at">na.rm =</span> F)</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(lat) <span class="ot">&lt;-</span> <span class="st">'latitude'</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>lat <span class="ot">&lt;-</span> terra<span class="sc">::</span><span class="fu">as.data.frame</span>(lat, <span class="at">na.rm =</span> F)</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co"># elevation</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>dem <span class="ot">&lt;-</span> <span class="fu">rast</span>(<span class="st">'data/DEM.tif'</span>)</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(dem) <span class="ot">&lt;-</span> <span class="st">'altitude'</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>dem <span class="ot">&lt;-</span> terra<span class="sc">::</span><span class="fu">as.data.frame</span>(dem, <span class="at">na.rm =</span> F)</span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co"># ASW</span></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>asw_max <span class="ot">&lt;-</span> <span class="fu">rast</span>(<span class="st">'data/ASW_Max.tif'</span>)</span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(asw_max) <span class="ot">&lt;-</span> <span class="st">'asw_max'</span></span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>asw_max <span class="ot">&lt;-</span> terra<span class="sc">::</span><span class="fu">as.data.frame</span>(asw_max, <span class="at">na.rm =</span> F)</span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>asw_min <span class="ot">&lt;-</span> <span class="dv">0</span></span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>asw_i <span class="ot">&lt;-</span> asw_max</span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(asw_i) <span class="ot">&lt;-</span> <span class="st">'asw_i'</span></span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="co"># prepare sites</span></span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="co"># the model wants all variable to be explicit</span></span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="co"># if we don't have values, just report a constant</span></span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>site <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">latitude =</span> lat,</span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>                   <span class="at">altitude =</span> dem,</span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>                   <span class="at">soil_class =</span> <span class="dv">2</span>,</span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>                   <span class="at">asw_i =</span> asw_i,</span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>                   <span class="at">asw_min =</span> asw_min,</span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>                   <span class="at">asw_max =</span> asw_max,</span>
-<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>                   <span class="at">from =</span> from,</span>
-<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>                   <span class="at">to =</span> to)</span>
-<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(site)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Note that, while there are many other ways to code these chunks, what we present is a very straightforward way, especially if you do not feel super comfortable with your coding skills.</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># time frame</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>period <span class="ot">&lt;-</span> <span class="st">'2011-2040'</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>from <span class="ot">&lt;-</span> <span class="st">'2024-01'</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>to <span class="ot">&lt;-</span> <span class="st">'2100-01'</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># latitude</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>lat <span class="ot">&lt;-</span> <span class="fu">rast</span>(<span class="st">'data/Lat.tif'</span>)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co"># store coordinates for later</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>coords <span class="ot">&lt;-</span> <span class="fu">crds</span>(lat, <span class="at">na.rm =</span> F)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(lat) <span class="ot">&lt;-</span> <span class="st">'latitude'</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>lat <span class="ot">&lt;-</span> terra<span class="sc">::</span><span class="fu">as.data.frame</span>(lat, <span class="at">na.rm =</span> F)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co"># elevation</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>dem <span class="ot">&lt;-</span> <span class="fu">rast</span>(<span class="st">'data/DEM.tif'</span>)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(dem)</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(dem) <span class="ot">&lt;-</span> <span class="st">'altitude'</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>dem <span class="ot">&lt;-</span> terra<span class="sc">::</span><span class="fu">as.data.frame</span>(dem, <span class="at">na.rm =</span> F)</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="co"># ASW</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>asw_max <span class="ot">&lt;-</span> <span class="fu">rast</span>(<span class="st">'data/ASW_Max.tif'</span>)</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(asw_max) <span class="ot">&lt;-</span> <span class="st">'asw_max'</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>asw_max <span class="ot">&lt;-</span> terra<span class="sc">::</span><span class="fu">as.data.frame</span>(asw_max, <span class="at">na.rm =</span> F)</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>asw_min <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>asw_i <span class="ot">&lt;-</span> asw_max</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(asw_i) <span class="ot">&lt;-</span> <span class="st">'asw_i'</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="co"># prepare sites</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="co"># the model wants all variable to be explicit</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="co"># if we don't have values, just report a constant</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>site <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">latitude =</span> lat,</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>                   <span class="at">altitude =</span> dem,</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>                   <span class="at">soil_class =</span> <span class="dv">2</span>,</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>                   <span class="at">asw_i =</span> asw_i,</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>                   <span class="at">asw_min =</span> asw_min,</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>                   <span class="at">asw_max =</span> asw_max,</span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>                   <span class="at">from =</span> from,</span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>                   <span class="at">to =</span> to)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output-display">
+<div id="fig-dem" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-dem-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-dem-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-dem-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Elevation map (m) for Malcolm Knapp
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div id="tbl-site" class="cell quarto-float anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-site-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;2: Tabular version of site data for Malcolm Knapp
+</figcaption>
+<div aria-describedby="tbl-site-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output cell-output-stdout">
 <pre><code>  latitude altitude soil_class asw_i asw_min asw_max    from      to
 1       NA       NA          2    NA       0      NA 2024-01 2100-01
@@ -348,10 +357,9 @@ Table&nbsp;1: Summary and description of data available to run <code>r3PG</code>
 6       NA       NA          2    NA       0      NA 2024-01 2100-01</code></pre>
 </div>
 </div>
-<p>Note how the raster layers were converted into <code>dataframes</code> and every single entry has <code>site</code> information associated to it to conserve the spatial nature of the model. Furthermore, some entries have NA values. We will see why we are keeping those later.</p>
-<p>It’s now time to prepare our “species” dataset! <code>r3PG</code> requires information on when the trees were planted, the planting density, the fertility of the soil, and what the initial seedling biomass was to start growing them. In Malcom Knapp we are primarily working with Douglas fir, Western red cedar, and Western hemlock, so we’ll input values for all these species. We set the planting date to the beginning of the year because we are just starting growing the trees. We then assume an initial number of stem per hectares of 5000 (conservative), and a biomass partitioning among stem, root, and foliage equal to 6, 3, and 1 Mg/ha. Note that because we have 3 species, we’ll have 3 different biomass/carbon estimates, one for each species.</p>
-<p>…..As you may have noticed, we have an “age” layer for all forested land in Canada (<span class="citation" data-cites="maltman2023">Maltman et al. (<a href="#ref-maltman2023" role="doc-biblioref">2023</a>)</span>) as part of the National Terrestrial Ecosystem Monitoring System series of datasets (<span class="citation" data-cites="hermosilla2016">Hermosilla et al. (<a href="#ref-hermosilla2016" role="doc-biblioref">2016</a>)</span>). This data was redacted in 2023, so we’ll have to correct for the current year as of January 2024……</p>
-<div class="cell">
+</figure>
+</div>
+<p>It’s now time to prepare our “species” dataset! <code>r3PG</code> requires information on when the trees were planted, the planting density, the fertility of the soil, and what the initial seedling biomass was to start growing them. In Malcom Knapp we are primarily working with Douglas fir, Western red cedar, and Western hemlock, so we’ll input values for all these species. We set the planting date to the beginning of the year because we are just starting growing the trees. We then assume an initial number of stem per hectares of 5000 (conservative), and a biomass partitioning among stem, root, and foliage equal to 6, 3, and 1 Mg/ha. Note that because we have 3 species, we’ll have 3 different biomass/carbon estimates, one for each species (<a href="#tbl-species" class="quarto-xref">Table&nbsp;3</a>).</p>
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>spp <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">'PSEU.MEN'</span>, <span class="st">'THUJ.PLI'</span>, <span class="st">'TSUG.HET'</span>)  <span class="co"># latin names</span></span>
@@ -380,6 +388,12 @@ Table&nbsp;1: Summary and description of data available to run <code>r3PG</code>
 <span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">relocate</span>(species)</span>
 <span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(species)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div id="tbl-species" class="cell quarto-float anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-species-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;3: Species dataset for every site in Malcolm Knapp
+</figcaption>
+<div aria-describedby="tbl-species-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output cell-output-stdout">
 <pre><code>   species planted fertility stems_n biom_stem biom_root biom_foliage
 1 PSEU.MEN 2024-07        NA    1700         6         3            1
@@ -390,8 +404,9 @@ Table&nbsp;1: Summary and description of data available to run <code>r3PG</code>
 6 PSEU.MEN 2024-07        NA    1700         6         3            1</code></pre>
 </div>
 </div>
-<p>For now that’s all we need for the tree species. Let’s start working on the climate modifiers and input what the projected climate will be until the end of the century. This step will allow <code>r3PG</code> to develop carbon and biomass projections in line with well established climate scenarios. As mentioned earlier, we have data using a SSP2 scenario. Note that for simplicity, we are considering the the climate data between 2011 and 2040 remain constant until the end of the century. In a real-case situation, you would want to follow the 20-year climate normals and re-run the model for every 20-year period while “carrying over” the biomass from the previous period in order to continuously grow the trees (instead of starting from the ground up at every 20-year interval).</p>
-<div class="cell">
+</figure>
+</div>
+<p>For now that’s all we need for the tree species. Let’s start working on the climate modifiers and input what the projected climate will be until the end of the century. This step will allow <code>r3PG</code> to develop carbon and biomass projections in line with well established climate scenarios. As mentioned earlier, we have data using a SSP2 scenario. Note that for simplicity, we are considering the the climate data between 2011 and 2040 remain constant until the end of the century. In a real-case situation, you would want to follow the 20-year climate normals and re-run the model for every 20-year period while “carrying over” the biomass from the previous period in order to continuously grow the trees (instead of starting from the ground up at every 20-year interval) (<a href="#tbl-climate" class="quarto-xref">Table&nbsp;4</a>).</p>
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># I'll implement a function to make the code</span></span>
@@ -426,6 +441,12 @@ Table&nbsp;1: Summary and description of data available to run <code>r3PG</code>
 <span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(climate)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div id="tbl-climate" class="cell quarto-float anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-climate-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;4: Climate dataset for every site in Malcolm Knapp
+</figcaption>
+<div aria-describedby="tbl-climate-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output cell-output-stdout">
 <pre><code>  tmp_min tmp_max prcp srad frost_days
 1      NA      NA   NA   NA         NA
@@ -436,9 +457,10 @@ Table&nbsp;1: Summary and description of data available to run <code>r3PG</code>
 6      NA      NA   NA   NA         NA</code></pre>
 </div>
 </div>
+</figure>
+</div>
 <p>Climate data is now ready! We are dealing with quite some data here. More than 100K records! Some will be NA values, but we’ll deal with those later to maintain the order with which we collected the data in the first place. This is important to maintain the <code>r3PG</code> spatial nature. That is, each pixel has a record of data and each pixel will have a corresponding carbon/biomass value. Pretty cool!</p>
-<p>We are down to the last step before running the model! Now it’s time to input the species growth parameters. We don’t need to know in details what all the parameters mean because there are lots. If you’re interested, explore the data that comes with this lab or check <code>i_parameters</code> for a description of each. A parameter that is very important to know is quantum canopy efficiency (aka “alpha”). Simply put, this parameters regulates how efficient the foliage in the canopy is to utilize incoming solar radiation to photosynthesize nutrients. Changing this parameter by any small amount will have a large impact on the biomass/carbon predictions. In general, these parameters allow us to develop species-specific growth curves with an associated carbon/biomass content. This step of our implementation is pretty easy, the file is ready to go, so we simply import it and pick the species we are interested in.</p>
-<div class="cell">
+<p>We are down to the last step before running the model! Now it’s time to input the species growth parameters (<a href="#tbl-parameters" class="quarto-xref">Table&nbsp;5</a>) (note that only 6 are displayed, but there are dozens!). We don’t need to know in details what all the parameters mean because there are lots. If you’re interested, explore the data that comes with this lab or check <code>i_parameters</code> for a description of each. A parameter that is very important to know is quantum canopy efficiency (aka “alpha”). Simply put, this parameters regulates how efficient the foliage in the canopy is to utilize incoming solar radiation to photosynthesize nutrients. Changing this parameter by any small amount will have a large impact on the biomass/carbon predictions. In general, these parameters allow us to develop species-specific growth curves with an associated carbon/biomass content. This step of our implementation is pretty easy, the file is ready to go, so we simply import it and pick the species we are interested in.</p>
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># species file</span></span>
@@ -447,6 +469,12 @@ Table&nbsp;1: Summary and description of data available to run <code>r3PG</code>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">all_of</span>(select_all))</span>
 <span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(param)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div id="tbl-parameters" class="cell quarto-float anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-parameters-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;5: Parameter dataset for each of the 3 species of interest in Malcolm Knapp
+</figcaption>
+<div aria-describedby="tbl-parameters-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 6 × 4
   parameter  PSEU.MEN THUJ.PLI TSUG.HET
@@ -458,6 +486,8 @@ Table&nbsp;1: Summary and description of data available to run <code>r3PG</code>
 5 alphaCx      0.0653    0.055    0.055
 6 aV           0         0        0    </code></pre>
 </div>
+</div>
+</figure>
 </div>
 </section>
 <section id="model-developement" class="level2">
@@ -488,7 +518,7 @@ Table&nbsp;1: Summary and description of data available to run <code>r3PG</code>
 <span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>stem_bc<span class="sc">$</span>carbon <span class="ot">&lt;-</span> stem_bc<span class="sc">$</span>value <span class="sc">/</span> <span class="dv">2</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<p>Great! We finally managed to run 3PG until the end of the century! As you can observe from the output, we have biomass and carbon values in Mg/ha at the end of each month. Let’s do some plotting to better see what the trend is over time if Malcom Knapp were planted with only Douglas Fir (<a href="#fig-biomass" class="quarto-xref">Figure&nbsp;1</a>).</p>
+<p>Great! We finally managed to run 3PG until the end of the century! As you can observe from the output, we have biomass and carbon values in Mg/ha at the end of each month. Let’s do some plotting to better see what the trend is over time if Malcom Knapp were planted with only Douglas Fir (<a href="#fig-biomass" class="quarto-xref">Figure&nbsp;2</a>).</p>
 <div class="cell">
 <div class="cell-output-display">
 <div id="fig-biomass" class="quarto-figure quarto-figure-center quarto-float anchored">
@@ -497,67 +527,76 @@ Table&nbsp;1: Summary and description of data available to run <code>r3PG</code>
 <img src="index_files/figure-html/fig-biomass-1.png" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-biomass-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;1: Biomass Growth for Douglas Fir from 2024-01 to 2100-01 for 1 pixel in Malcol Knapp
+Figure&nbsp;2: Biomass Growth for Douglas Fir from 2024-01 to 2100-01 for 1 pixel in Malcol Knapp
 </figcaption>
 </figure>
 </div>
 </div>
 </div>
 <p>It seems we are seeing a nice increase in biomass over time, with a plateau around year 2060. Why is that?</p>
-<p>Now to a more fun task. We have to repeat this operation for every single pixel in the area. Let’s write a function to do all this and run it for every pixel. We are going to produce quite a few new data here. In the code chunk below we are simply going to repeat what we did for the single-pixel run, and then run multiple instances of it for each pixel, assuming that the only species present if Douglas Fir. We will then make a map of the predicted biomass in January 2010. To do so, we will have to create a new raster object starting from the biomass dataframe we have. You can achieve this with the package <code>terra</code> that we previously used.</p>
+<p>Now to a more fun task. We have to repeat this operation for every single pixel in the area. Let’s write a function to do all this and run it for every pixel. We are going to produce quite a few new data here. In the code chunk below we are simply going to repeat what we did for the single-pixel run, and then run multiple instances of it for each pixel, assuming that the only species present if Douglas Fir. We will then make a map of the predicted biomass in January 2010. To do so, we will have to create a new raster object starting from the biomass dataframe we have (<a href="#fig-biomass-map" class="quarto-xref">Figure&nbsp;3</a>). You can achieve this with the package <code>terra</code> that we previously used.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># prepare function to run the model</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="co"># we repeat the same code of above for simplicity</span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>run_model <span class="ot">&lt;-</span> <span class="cf">function</span>(pixel) {</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># if empty, don't run</span></span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">isFALSE</span>(<span class="fu">complete.cases</span>(site[pixel, ]))) {</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    df_null <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">date =</span> <span class="fu">as.Date</span>(<span class="st">'1900-01-01'</span>),</span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>                          <span class="at">species =</span> spp[<span class="dv">1</span>],</span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>                          <span class="at">group =</span> <span class="st">'stocks'</span>,</span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>                          <span class="at">variable =</span> <span class="st">'biom_stem'</span>,</span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>                          <span class="at">value =</span> <span class="cn">NA</span>)</span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(df_null)</span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>  <span class="co"># prepare climate data for site</span></span>
-<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>  pixels <span class="ot">&lt;-</span> <span class="fu">sapply</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">11</span>, <span class="cf">function</span>(i) <span class="dv">41</span> <span class="sc">+</span> (offset <span class="sc">*</span> i))</span>
-<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>  climate_pixel <span class="ot">&lt;-</span> climate[pixels, ]</span>
-<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>  climate_pixel <span class="ot">&lt;-</span> <span class="fu">prepare_climate</span>(climate_pixel, <span class="at">from =</span> from, <span class="at">to =</span> <span class="st">'2100-01'</span>)</span>
-<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>  output <span class="ot">&lt;-</span> <span class="fu">run_3PG</span>(<span class="at">site =</span> site[pixel,],</span>
-<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>                    <span class="at">species =</span> species[pixel, ],</span>
-<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>                    <span class="at">climate =</span> climate_pixel,</span>
-<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>                    <span class="at">parameters =</span> param[, <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>],</span>
-<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>                    <span class="at">check_input =</span> T,</span>
-<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>                    <span class="at">df_out =</span> T)</span>
-<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>  stem_bc <span class="ot">&lt;-</span> output <span class="sc">%&gt;%</span></span>
-<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(variable <span class="sc">==</span> <span class="st">'biom_stem'</span>)</span>
-<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">tail</span>(stem_bc, <span class="dv">1</span>))  <span class="co"># year 2100</span></span>
-<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a><span class="co"># run the model for every pixel</span></span>
-<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a><span class="co"># let's take advantage of more cores in your machine to speed everything up</span></span>
-<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>output <span class="ot">&lt;-</span> <span class="fu">mclapply</span>(<span class="fu">seq_len</span>(<span class="fu">nrow</span>(site)),</span>
-<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a>                   run_model,</span>
-<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a>                   <span class="at">mc.cores =</span> <span class="dv">10</span>,</span>
-<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a>                   <span class="at">mc.cleanup =</span> T) <span class="sc">%&gt;%</span></span>
-<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_rows</span>()</span>
-<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a><span class="co"># make a raster object</span></span>
-<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a>r <span class="ot">&lt;-</span> output <span class="sc">%&gt;%</span></span>
-<span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(value) <span class="sc">%&gt;%</span></span>
-<span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">z =</span> value) <span class="sc">%&gt;%</span></span>
-<span id="cb10-40"><a href="#cb10-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">x =</span> coords[, <span class="dv">1</span>],</span>
-<span id="cb10-41"><a href="#cb10-41" aria-hidden="true" tabindex="-1"></a>         <span class="at">y =</span> coords[, <span class="dv">2</span>],</span>
-<span id="cb10-42"><a href="#cb10-42" aria-hidden="true" tabindex="-1"></a>         <span class="at">.before =</span> z) <span class="sc">%&gt;%</span></span>
-<span id="cb10-43"><a href="#cb10-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rast</span>(<span class="at">type=</span><span class="st">'xyz'</span>, <span class="at">crs=</span><span class="st">'epsg:3005'</span>)</span>
-<span id="cb10-44"><a href="#cb10-44" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-45"><a href="#cb10-45" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(r, <span class="at">legend =</span> T, <span class="at">main =</span> <span class="st">"Biomass prediction (Mg/ha) for Douglas Fir in Malcom Knapp in 2100."</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="co"># note that </span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>run_model <span class="ot">&lt;-</span> <span class="cf">function</span>(pixel, from, to) {</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># if empty, don't run</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">isFALSE</span>(<span class="fu">complete.cases</span>(site[pixel, ]))) {</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    df_null <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">date =</span> <span class="fu">as.Date</span>(<span class="st">'1900-01-01'</span>),</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>                          <span class="at">species =</span> spp[<span class="dv">1</span>],</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>                          <span class="at">group =</span> <span class="st">'stocks'</span>,</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>                          <span class="at">variable =</span> <span class="st">'biom_stem'</span>,</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>                          <span class="at">value =</span> <span class="cn">NA</span>)</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(df_null)</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>  <span class="co"># prepare climate data for site</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>  pixels <span class="ot">&lt;-</span> <span class="fu">sapply</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">11</span>, <span class="cf">function</span>(i) <span class="dv">41</span> <span class="sc">+</span> (offset <span class="sc">*</span> i))</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>  climate_pixel <span class="ot">&lt;-</span> climate[pixels, ]</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>  climate_pixel <span class="ot">&lt;-</span> <span class="fu">prepare_climate</span>(climate_pixel, <span class="at">from =</span> from, <span class="at">to =</span> to)</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>  output <span class="ot">&lt;-</span> <span class="fu">run_3PG</span>(<span class="at">site =</span> site[pixel,],</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>                    <span class="at">species =</span> species[pixel, ],</span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>                    <span class="at">climate =</span> climate_pixel,</span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>                    <span class="at">parameters =</span> param[, <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>],</span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>                    <span class="at">check_input =</span> T,</span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>                    <span class="at">df_out =</span> T)</span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>  stem_bc <span class="ot">&lt;-</span> output <span class="sc">%&gt;%</span></span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(variable <span class="sc">==</span> <span class="st">'biom_stem'</span>)</span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">tail</span>(stem_bc, <span class="dv">1</span>))  <span class="co"># year 2100</span></span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a><span class="co"># run the model for every pixel</span></span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a><span class="co"># let's take advantage of more cores in your machine to speed everything up</span></span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a>output <span class="ot">&lt;-</span> <span class="fu">mcmapply</span>(run_model,</span>
+<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a>                   <span class="at">pixel =</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(site)),</span>
+<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a>                   <span class="at">from =</span> <span class="fu">rep</span>(from, <span class="fu">nrow</span>(site)),</span>
+<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a>                   <span class="at">to =</span> <span class="fu">rep</span>(to, <span class="fu">nrow</span>(site)),</span>
+<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a>                   <span class="at">mc.cores =</span> <span class="dv">10</span>L,</span>
+<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a>                   <span class="at">mc.cleanup =</span> T,</span>
+<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a>                   <span class="at">SIMPLIFY =</span> F) <span class="sc">%&gt;%</span></span>
+<span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_rows</span>()</span>
+<span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-40"><a href="#cb10-40" aria-hidden="true" tabindex="-1"></a><span class="co"># make a raster object</span></span>
+<span id="cb10-41"><a href="#cb10-41" aria-hidden="true" tabindex="-1"></a>r <span class="ot">&lt;-</span> output <span class="sc">%&gt;%</span></span>
+<span id="cb10-42"><a href="#cb10-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(value) <span class="sc">%&gt;%</span></span>
+<span id="cb10-43"><a href="#cb10-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">z =</span> value) <span class="sc">%&gt;%</span></span>
+<span id="cb10-44"><a href="#cb10-44" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">x =</span> coords[, <span class="dv">1</span>],</span>
+<span id="cb10-45"><a href="#cb10-45" aria-hidden="true" tabindex="-1"></a>         <span class="at">y =</span> coords[, <span class="dv">2</span>],</span>
+<span id="cb10-46"><a href="#cb10-46" aria-hidden="true" tabindex="-1"></a>         <span class="at">.before =</span> z) <span class="sc">%&gt;%</span></span>
+<span id="cb10-47"><a href="#cb10-47" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rast</span>(<span class="at">type=</span><span class="st">'xyz'</span>, <span class="at">crs=</span><span class="st">'epsg:3005'</span>)</span>
+<span id="cb10-48"><a href="#cb10-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-49"><a href="#cb10-49" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(r)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="index_files/figure-html/model-1.png" class="img-fluid figure-img" width="672"></p>
+<div id="fig-biomass-map" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-biomass-map-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-biomass-map-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-biomass-map-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: Map of biomass prediction (tDM/ha) for Douglas Fir in Malcom Knapp in 2100.
+</figcaption>
 </figure>
 </div>
 </div>
@@ -566,21 +605,161 @@ Figure&nbsp;1: Biomass Growth for Douglas Fir from 2024-01 to 2100-01 for 1 pixe
 </section>
 <section id="part-2-historical-biomass-reconstruction" class="level2">
 <h2 class="anchored" data-anchor-id="part-2-historical-biomass-reconstruction">Part 2: Historical biomass reconstruction</h2>
-<p>Now that we have completed the first part of the lab, recall we want to know what is today’s biomass across Malcolm Knapp. To do that using 3PG, we have to reconstruct the history of the site</p>
+<p>Now that we have completed the first part of the lab, recall we want to know what is today’s biomass across Malcolm Knapp. To do that using 3PG, we have to reconstruct the history of the site by retrieving the age of the trees and assume the model’s variables remained unchanged for the entire length of the simulation. Thankfully, we have age information for Canada’s treed area at a 30m resolution (<span class="citation" data-cites="maltman">(<a href="#ref-maltman" role="doc-biblioref"><strong>maltman?</strong></a>)</span>) (<a href="#fig-age" class="quarto-xref">Figure&nbsp;4</a>), which is great! Note the presence of gaps due to (mostly) absence of vegetation. Given this piece of information, let’s refine the length of the growth period for each pixel from when the trees started growing to the beginning of 2024. We do this because each pixel will have a different age value compared to itsd neighbors. Then, we’ll adjust the site and species values to account for the age value of each pixel.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># import age</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>age <span class="ot">&lt;-</span> <span class="fu">rast</span>(<span class="st">'data/age.tif'</span>)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(age)</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(age) <span class="ot">&lt;-</span> <span class="st">'age'</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>age <span class="ot">&lt;-</span> terra<span class="sc">::</span><span class="fu">as.data.frame</span>(age, <span class="at">na.rm =</span> F)</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="co"># adjust from and to</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>to <span class="ot">&lt;-</span> <span class="fu">as.Date</span>(<span class="st">"2024-01-01"</span>)</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>dates <span class="ot">&lt;-</span> <span class="fu">years</span>(<span class="fu">as.integer</span>(age<span class="sc">$</span>age) <span class="sc">+</span> <span class="dv">1</span>)  <span class="co"># round it up</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>from <span class="ot">&lt;-</span> to <span class="sc">-</span> dates</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>from <span class="ot">&lt;-</span> <span class="fu">format</span>(from, <span class="st">"%Y-%m"</span>)</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a><span class="co"># fix site dataset</span></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>site<span class="sc">$</span>from <span class="ot">&lt;-</span> from</span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>site<span class="sc">$</span>to <span class="ot">&lt;-</span> to</span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a><span class="co"># fix species dataset</span></span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>species<span class="sc">$</span>planted <span class="ot">&lt;-</span> from</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-age" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-age-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-age-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-age-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: Age distribution at 30m for Malcolm Knapp
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Now that we have fixed the site and species dataset with the new age values, assuming that they were all planted, we have to change the projection length for the climate dataset inside our <code>run_model</code> function and then we are ready to run it and estimate today’s biomass per pixel!</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>output <span class="ot">&lt;-</span> <span class="fu">mcmapply</span>(run_model,</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">pixel =</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(site)),</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>                   <span class="at">from =</span> from,</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>                   <span class="at">to =</span> <span class="fu">rep</span>(to, <span class="fu">nrow</span>(site)),</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>                   <span class="at">mc.cores =</span> <span class="dv">10</span>L,</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>                   <span class="at">mc.cleanup =</span> T,</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>                   <span class="at">SIMPLIFY =</span> F) <span class="sc">%&gt;%</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_rows</span>()</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="co"># make a raster object</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>r <span class="ot">&lt;-</span> output <span class="sc">%&gt;%</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(value) <span class="sc">%&gt;%</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">z =</span> value) <span class="sc">%&gt;%</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">x =</span> coords[, <span class="dv">1</span>],</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>         <span class="at">y =</span> coords[, <span class="dv">2</span>],</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>         <span class="at">.before =</span> z) <span class="sc">%&gt;%</span></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rast</span>(<span class="at">type=</span><span class="st">'xyz'</span>, <span class="at">crs=</span><span class="st">'epsg:3005'</span>)</span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(r)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-biomass-today" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-biomass-today-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-biomass-today-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-biomass-today-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5: Map of biomass prediction (tDM/ha) for Douglas Fir in Malcom Knapp in 2024.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Note how the results we obtained closely mirrors the predicted biomass in 2100 we estimated earlier. This results shows how dependent the model is on the input data. By giving it the same climate dataset, which is drawn by climate projection based on SSP2 (<a href="#tbl-sources" class="quarto-xref">Table&nbsp;1</a>), the output we obtain is pretty similar except for the missing values where we don’t have age information, and the darker areas that have probably been harvested recently.</p>
+</section>
+<section id="part-3-comparing" class="level2">
+<h2 class="anchored" data-anchor-id="part-3-comparing">Part 3: Comparing</h2>
+<p>Now that we have calculated both projected and current biomass content at the pixel level for Malcolm Knapp, let’s experiment a bit by comparing the results we obtained from Lab 1 at Loon Lake with what we just produced. Our aim here is to compare the biomass values we just obtained with what we can infer from the plots we set up a while ago. In particular, we are going to extract volume information for each tree in your plots based on diameter at breast height (DBH) and height - by assuming stems to resemble a perfect cone, which is unrealistic (<a href="#eq-volume" class="quarto-xref">Equation&nbsp;1</a>) - and compare them to the pixel-level values we have. This would help us reflect on the data type, source, and scale at which such information is representative of the local environment, that is whether we trust the data we have for the scale we are working at.</p>
+<p><span id="eq-volume"><span class="math display">\[
+\frac{1}{3}\pi r^{2} h
+\tag{1}\]</span></span></p>
+<p>So let’s start by retrieving the data we have on the trees we sampled at Loon Lake.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sf)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(googlesheets4)</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readxl)</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(leaflet)</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="co"># no authentication required</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="fu">gs4_deauth</span>()</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="co"># read sheet</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>tally <span class="ot">&lt;-</span><span class="fu">read_sheet</span>(<span class="st">"1M2BZIHRX_D_T4J8ji0B8pVnSJr6yMEqdvVCB9ryAWfc"</span>, <span class="at">sheet=</span><span class="st">'DATA'</span>)</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a><span class="co"># add volume info</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>tally <span class="ot">&lt;-</span> tally <span class="sc">%&gt;%</span> </span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">volume =</span> (<span class="dv">1</span><span class="sc">/</span><span class="dv">3</span>) <span class="sc">*</span> pi <span class="sc">*</span> ((dbh <span class="sc">/</span> <span class="dv">2</span>) <span class="sc">^</span> <span class="dv">2</span>) <span class="sc">*</span> height)</span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a><span class="co"># get average per plot</span></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>by_plot <span class="ot">&lt;-</span> tally <span class="sc">%&gt;%</span></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(plot) <span class="sc">%&gt;%</span></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">mean =</span> <span class="fu">mean</span>(volume))</span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>by_plot</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 2
+   plot  mean
+  &lt;dbl&gt; &lt;dbl&gt;
+1     0 9356.</code></pre>
+</div>
+</div>
+<p>To compare the values we got in the field with the pixel-level biomass content, we need to georeference the plot centers, that is assign geospatial information to each plot in order to properly place them on the map. We did this in the field, so let’s add this information to our current dataframe (<a href="#fig-plots" class="quarto-xref">Figure&nbsp;6</a>).</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>geo <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(<span class="st">'data/plot_centers.xlsx'</span>)</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>by_plot <span class="ot">&lt;-</span> by_plot <span class="sc">%&gt;%</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">x =</span> geo<span class="sc">$</span>x,</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">y =</span> geo<span class="sc">$</span>y) <span class="sc">%&gt;%</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_as_sf</span>(<span class="at">coords =</span> <span class="fu">c</span>(<span class="st">"x"</span>, <span class="st">"y"</span>), <span class="at">crs =</span> <span class="dv">3005</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_buffer</span>(<span class="fl">11.28</span>)  <span class="co"># plot radius</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="co"># plot</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>m <span class="ot">&lt;-</span> <span class="fu">plet</span>(<span class="fu">vect</span>(by_plot))</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>m</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div id="fig-plots" class="cell-output-display quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-plots-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="leaflet html-widget html-fill-item" id="htmlwidget-69b8f02f000fc7370ca5" style="width:100%;height:464px;"></div>
+<script type="application/json" data-for="htmlwidget-69b8f02f000fc7370ca5">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addTiles","args":["https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",null,"Streets",{"minZoom":0,"maxZoom":18,"tileSize":256,"subdomains":"abc","errorTileUrl":"","tms":false,"noWrap":false,"zoomOffset":0,"zoomReverse":false,"opacity":1,"zIndex":1,"detectRetina":false,"attribution":"&copy; <a href=\"https://openstreetmap.org/copyright/\">OpenStreetMap<\/a>,  <a href=\"https://opendatacommons.org/licenses/odbl/\">ODbL<\/a>"}]},{"method":"addProviderTiles","args":["Esri.WorldImagery",null,"Esri.WorldImagery",{"minZoom":0,"maxZoom":18,"tileSize":256,"subdomains":"abc","errorTileUrl":"","tms":false,"noWrap":false,"zoomOffset":0,"zoomReverse":false,"opacity":1,"zIndex":1,"detectRetina":false}]},{"method":"addProviderTiles","args":["OpenTopoMap",null,"OpenTopoMap",{"minZoom":0,"maxZoom":18,"tileSize":256,"subdomains":"abc","errorTileUrl":"","tms":false,"noWrap":false,"zoomOffset":0,"zoomReverse":false,"opacity":1,"zIndex":1,"detectRetina":false}]},{"method":"addPolygons","args":[[[[{"lng":[-138.4456120986246,-138.4456110086183,-138.4456102985177,-138.4456099702689,-138.4456100247717,-138.4456104618764,-138.445611280385,-138.4456124780537,-138.4456140515998,-138.4456159967101,-138.4456183080533,-138.4456209792939,-138.4456240031101,-138.4456273712138,-138.4456310743733,-138.4456351024383,-138.4456394443681,-138.4456440882619,-138.4456490213909,-138.4456542302339,-138.4456597005136,-138.4456654172366,-138.4456713647336,-138.4456775267031,-138.4456838862555,-138.4456904259598,-138.4456971278913,-138.4457039736805,-138.4457109445636,-138.445718021434,-138.4457251848946,-138.445732415311,-138.4457396928652,-138.4457469976101,-138.445754309524,-138.4457616085655,-138.4457688747287,-138.4457760880975,-138.4457832289007,-138.4457902775661,-138.4457972147738,-138.4458040215095,-138.4458106791165,-138.4458171693468,-138.4458234744113,-138.4458295770282,-138.4458354604708,-138.4458411086129,-138.4458465059735,-138.4458516377587,-138.4458564899027,-138.4458610491061,-138.4458653028724,-138.4458692395422,-138.4458728483255,-138.4458761193307,-138.4458790435921,-138.4458816130945,-138.4458838207949,-138.4458856606421,-138.4458871275931,-138.445888217627,-138.4458889277559,-138.4458892560334,-138.4458892015594,-138.4458887644833,-138.4458879460029,-138.4458867483615,-138.4458851748415,-138.4458832297559,-138.4458809184359,-138.4458782472165,-138.4458752234192,-138.4458718553321,-138.4458681521867,-138.445864124133,-138.4458597822116,-138.4458551383235,-138.445850205197,-138.4458449963537,-138.4458395260705,-138.4458338093411,-138.4458278618347,-138.4458216998531,-138.4458153402859,-138.4458088005643,-138.4458020986131,-138.4457952528023,-138.4457882818956,-138.445781205,-138.4457740415129,-138.4457668110689,-138.4457595334864,-138.4457522287128,-138.4457449167701,-138.4457376176999,-138.4457303515086,-138.4457231381125,-138.4457159972831,-138.4457089485929,-138.4457020113622,-138.4456952046054,-138.4456885469794,-138.4456820567325,-138.4456757516539,-138.4456696490257,-138.4456637655746,-138.4456581174269,-138.4456527200637,-138.4456475882789,-138.4456427361384,-138.4456381769414,-138.4456339231844,-138.4456299865267,-138.4456263777582,-138.4456231067704,-138.4456201825286,-138.4456176130479,-138.4456154053711,-138.4456135655491,-138.4456120986246],"lat":[44.19951510894263,44.19950979926977,44.19950445498139,44.19949909072584,44.19949372120618,44.19948836113991,44.19948302521858,44.19947772806749,44.19947248420591,44.19946730800677,44.19946221365766,44.19945721512183,44.19945232609994,44.19944755999241,44.19944292986269,44.19943844840174,44.19943412789278,44.19942998017803,44.19942601662616,44.19942224810078,44.19941868493126,44.19941533688384,44.19941221313535,44.1994093222477,44.19940667214454,44.19940427008959,44.19940212266672,44.19940023576185,44.19939861454681,44.19939726346521,44.19939618622026,44.19939538576457,44.19939486429217,44.19939462323237,44.19939466324583,44.19939498422297,44.1993955852839,44.19939646478129,44.19939762030442,44.19939904868615,44.1994007460114,44.1994027076279,44.19940492815901,44.19940740151851,44.19941012092713,44.19941307893115,44.19941626742285,44.19941967766295,44.19942330030423,44.19942712541728,44.19943114251778,44.19943534059524,44.19943970814293,44.19944423318986,44.19944890333318,44.19945370577234,44.19945862734426,44.19946365455934,44.19946877363829,44.1994739705501,44.19947923105035,44.19948454072055,44.19948988500715,44.19949524926184,44.19950061878166,44.19950597884907,44.19951131477248,44.19951661192646,44.19952185579192,44.19952703199585,44.19953212635043,44.19953712489253,44.19954201392138,44.19954678003648,44.19955141017417,44.19955589164365,44.19956021216141,44.19956435988511,44.19956832344626,44.19957209198081,44.19957565515949,44.19957900321589,44.19958212697313,44.19958501786915,44.19958766798023,44.1995900700425,44.19959221747209,44.19959410438302,44.19959572560339,44.19959707668951,44.1995981539381,44.19959895439644,44.1995994758707,44.1995997169313,44.19959967691769,44.19959935593946,44.19959875487647,44.19959787537611,44.19959671984911,44.19959529146266,44.19959359413193,44.19959163250912,44.19958941197102,44.19958693860399,44.19958421918735,44.19958126117493,44.19957807267435,44.19957466242521,44.19957103977476,44.19956721465248,44.19956319754286,44.19955899945646,44.19955463189999,44.19955010684469,44.1995454366935,44.19954063424692,44.19953571266825,44.19953068544713,44.19952556636288,44.19952036944658,44.19951510894263]}]]],null,"polygons",{"interactive":true,"className":"","stroke":true,"color":"black","weight":2,"opacity":1,"fill":true,"fillColor":"#FF0000","fillOpacity":0.2,"smoothFactor":1,"noClip":false},"plot: 0<br>mean: 9355.6629223904",null,null,{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null]},{"method":"addLayersControl","args":[["Streets","Esri.WorldImagery","OpenTopoMap"],"polygons",{"collapsed":false,"autoZIndex":true,"position":"topright"}]}],"limits":{"lat":[44.19939462323237,44.1995997169313],"lng":[-138.4458892560334,-138.4456099702689]}},"evals":[],"jsHooks":[]}</script>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-plots-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6: Georeferenced plots in Malcolm Knapp
+</figcaption>
+</figure>
+</div>
+</div>
+<p>To finalize the comparison, let’s take the pixels corresponding to the location of our plots. We can do this by using the geospatial information attached to every plot.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># extract pixel-level information for each plot</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
 <section id="references" class="level3">
 <h3 class="anchored" data-anchor-id="references">References</h3>
 <div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
 <div id="ref-coops1998" class="csl-entry" role="listitem">
 Coops, NC, RH Waring, and JJ Landsberg. 1998. <span>“Assessing Forest Productivity in Australia and New Zealand Using a Physiologically-Based Model Driven with Averaged Monthly Weather Data and Satellite-Derived Estimates of Canopy Photosynthetic Capacity.”</span> <em>Forest Ecology and Management</em> 104 (1-3): 113–27.
 </div>
-<div id="ref-hermosilla2016" class="csl-entry" role="listitem">
-Hermosilla, Txomin, Michael A Wulder, Joanne C White, Nicholas C Coops, Geordie W Hobart, and Lorraine B Campbell. 2016. <span>“Mass Data Processing of Time Series Landsat Imagery: Pixels to Data Products for Forest Monitoring.”</span> <em>International Journal of Digital Earth</em> 9 (11): 1035–54.
-</div>
 <div id="ref-landsberg1997" class="csl-entry" role="listitem">
 Landsberg, JJ, and RH Waring. 1997. <span>“A Generalised Model of Forest Productivity Using Simplified Concepts of Radiation-Use Efficiency, Carbon Balance and Partitioning.”</span> <em>Forest Ecology and Management</em> 95 (3): 209–28.
-</div>
-<div id="ref-maltman2023" class="csl-entry" role="listitem">
-Maltman, James C, Txomin Hermosilla, Michael A Wulder, Nicholas C Coops, and Joanne C White. 2023. <span>“Estimating and Mapping Forest Age Across Canada’s Forested Ecosystems.”</span> <em>Remote Sensing of Environment</em> 290: 113529.
 </div>
 <div id="ref-riahi2017" class="csl-entry" role="listitem">
 Riahi, Keywan, Detlef P Van Vuuren, Elmar Kriegler, Jae Edmonds, Brian C O’neill, Shinichiro Fujimori, Nico Bauer, et al. 2017. <span>“The Shared Socioeconomic Pathways and Their Energy, Land Use, and Greenhouse Gas Emissions Implications: An Overview.”</span> <em>Global Environmental Change</em> 42: 153–68.
