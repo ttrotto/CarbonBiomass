@@ -230,7 +230,7 @@ To work more efficiently, we will write a function to process each pixel sequent
 ```{r pixel}
 # year climate for 1 pixel
 offset <- 8960
-pixels <- sapply(0:11, function(i) 41 + (offset * i))
+pixels <- seq(41, offset*12, offset)
 climate_pixel <- climate[pixels, ]
 climate_pixel <- prepare_climate(climate_pixel, from = from, to = to)
 
@@ -252,7 +252,7 @@ Great! We finally managed to run 3PG until the end of the century! As you can ob
 
 ```{r plot}
 #| label: fig-biomass
-#| fig-cap: "Biomass Growth for Douglas Fir from 2024-01 to 2100-01 for 1 pixel in Malcol Knapp"
+#| fig-cap: "Biomass growth for Douglas Fir from 2024-01 to 2100-01 for 1 pixel in Malcol Knapp"
 #| echo: false
 
 p <- ggplot(stem_bc, aes(date, value)) +
@@ -284,7 +284,7 @@ run_model <- function(pixel, from, to) {
     return(df_null)
   }
   # prepare climate data for site
-  pixels <- sapply(0:11, function(i) 41 + (offset * i))
+  pixels <- seq(pixel, offset*12, offset)
   climate_pixel <- climate[pixels, ]
   climate_pixel <- prepare_climate(climate_pixel, from = from, to = to)
   output <- run_3PG(site = site[pixel,],
@@ -321,7 +321,7 @@ r <- output %>%
 plot(r)
 ```
 
-To repeat this analysis for the other species, we run the same code but change the input species. If you want to be more fancy, you can re-write the function to accept multiple species and output a raster stack, that is a collection of rasters with the same coordinate reference system, extend, and resolution stored in a single object.
+To repeat this analysis for the other species, we run the same code but change the input species. If you want to be more fancy, you can re-write the function to accept multiple species and output a raster stack, that is a collection of raster data with the same coordinate reference system, extend, and resolution stored in a single object.
 
 
 ## Part 2: Historical biomass reconstruction
@@ -379,7 +379,7 @@ r <- output %>%
 plot(r)
 ```
 
-Note how the results we obtained closely mirrors the predicted biomass in 2100 we estimated earlier. This results shows how dependent the model is on the input data. By giving it the same climate dataset, which is drawn by climate projection based on SSP2 (@tbl-sources), the output we obtain is pretty similar except for the missing values where we don't have age information, and the darker areas that have probably been harvested recently.
+Note how the results we obtained closely mirror the predicted biomass in 2100 we estimated earlier. This results show how dependent the model is on the input data. By giving it the same climate dataset, which is drawn by climate projection based on SSP2 (@tbl-sources), the output we obtain is almost identical, except for missing values where we don't have age information and the darker areas in the north-west portion of Malcolm Knapp that have probably been harvested recently.
 
 
 ## Part 3: Comparing 
@@ -387,9 +387,7 @@ Note how the results we obtained closely mirrors the predicted biomass in 2100 w
 Now that we have calculated both projected and current biomass content at the pixel level for Malcolm Knapp, let's experiment a bit by comparing the results we obtained from Lab 1 at Loon Lake with what we just produced. Our aim here is to compare the biomass values we just obtained with what we can infer from the plots we set up a while ago. In particular, we are going to extract volume information for each tree in your plots based on diameter at breast height (DBH) and height - by assuming stems to resemble a perfect cone, which is unrealistic (@eq-volume) - and compare them to the pixel-level values we have. This would help us reflect on the data type, source, and scale at which such information is representative of the local environment, that is whether we trust the data we have for the scale we are working at.
 
 
-$$
-\frac{1}{3}\pi r^{2} h
-$$ {#eq-volume}
+$$ \frac{1}{3}\pi r^{2} h $$ {#eq-volume}
 
 So let's start by retrieving the data we have on the trees we sampled at Loon Lake.
 
@@ -405,7 +403,7 @@ library(leaflet)
 gs4_deauth()
 
 # read sheet
-tally <-read_sheet("1M2BZIHRX_D_T4J8ji0B8pVnSJr6yMEqdvVCB9ryAWfc", sheet='DATA')
+tally <-read_sheet('1M2BZIHRX_D_T4J8ji0B8pVnSJr6yMEqdvVCB9ryAWfc', sheet='DATA')
 
 # add volume info
 tally <- tally %>% 
@@ -414,11 +412,11 @@ tally <- tally %>%
 # get average per plot
 by_plot <- tally %>%
   group_by(plot) %>%
-  summarize(mean = mean(volume))
+  summarize(plot_biomass = mean(volume))
 by_plot
 ```
 
-To compare the values we got in the field with the pixel-level biomass content, we need to georeference the plot centers, that is assign geospatial information to each plot in order to properly place them on the map. We did this in the field, so let's add this information to our current dataframe (@fig-plots).
+To compare the values we got in the field with the pixel-level biomass content, we need to georeference the plot centers, that is we have to assign geospatial information to each plot in order to properly place them on the map. We did this in the field when we collected the plot center with a GPS receiver, so let's add this information to our current dataframe (@fig-plots).
 
 ```{r georef}
 #| label: fig-plots
@@ -436,16 +434,23 @@ m <- plet(vect(by_plot))
 m
 ```
 
-To finalize the comparison, let's take the pixels corresponding to the location of our plots. We can do this by using the geospatial information attached to every plot.
+To finalize the comparison, let's take the pixels corresponding to the location of our plots. We can do this by using the geospatial information attached to every plot and calculating zonal statistics, that is statistics associated to an area in the map marked by another raster or polygon. We do this so that the values we extract from the raster are aggregated for the area covered by our individual polygons. Note that this is a good practice when you have overlays larger than a pixel. Our plots are very tiny compared to the 90m pixels of the biomass raster, so in this case using `terra::extract` returns the same result of `terra:zonal`, but faster.
 
 ``` {r comparison}
 #| label: fig-comparison
 #| fig-cap: "Comparison of biomass values retrieved from plot data versus pixel-level estimations with r3PG"
 
 # extract pixel-level information for each plot
+extracted_biomass <- terra::extract(r,
+                                    vect(by_plot),
+                                    touches = T) %>%
+  rename(plot = ID,
+         model_biomass = z)
 
+# comparison
+comparison <- left_join(extracted_biomass, st_drop_geometry(by_plot), by = 'plot')
+comparison
 ```
-
 
 ### References
 
