@@ -53,6 +53,8 @@ Ok! That are quite a few things going on here. You may understand how not only d
 | Species Parameters | Species-specific growth parameters for species of interest                          |                    | Various literature |
 : Summary and description of data available to run `r3PG`. *Available at monthly time steps. {#tbl-sources}
 
+***Question 1: When working with multiple data source for time series analyses, what are some of the properties of your data (e.g. source, type) you would need to consider prior to conducting your analysis. Use a bullet point format to answer.***
+
 The cool thing about `r3PG` is that it helps us keep track of carbon and biomass dynamics as our data varies over time, so in our case we could track it monthly! In addition to that, `r3PG` (as well as similar implementations) allows you to input source data predictions, like varying climate scenarios to observe how carbon and biomass change as climate changes. In this lab, we will first try to determine the amout of carbon stored at present and do a simple prediction on how it would change under a Shared Socioeconomic Pathway - 2 (SSP2) (@riahi2017) until the end of the century.
 
 As mentioned earlier, one caveat you'll encounter with `r3PG` is the data format it requires to actually run the model in the background. Unfortunately, no raster data is directly supported, so we'll have to work around that and prepare our input data as required by this implementation, that is as `dataframes`. That means that every pixel in the raster layers will correspond to an entry in our dataframes. To maintain the spatial nature of the model, we'll have to sequentially run `r3PG` for each entry, such that each entry will have a corresponding carbon/biomass value and trend over time. Then, we transform these values back into a raster layer by assigning each estimate to a empty raster, conventionally starting from the top-left pixel to the bottom-right pixel.
@@ -131,7 +133,7 @@ site <- data.frame(latitude = lat,
 head(site)
 ```
 
-It's now time to prepare our "species" dataset! `r3PG` requires information on when the trees were planted, the planting density, the fertility of the soil, and what the initial seedling biomass was to start growing them. In Malcom Knapp we are primarily working with Douglas fir, Western red cedar, and Western hemlock, so we'll input values for all these species. We set the planting date to the beginning of the year because we are just starting growing the trees. We then assume an initial number of stem per hectares of 5000 (conservative), and a biomass partitioning among stem, root, and foliage equal to 6, 3, and 1 Mg/ha. Note that because we have 3 species, we'll have 3 different biomass/carbon estimates, one for each species (@tbl-species).
+It's now time to prepare our species dataset! `r3PG` requires information on when the trees were planted, the planting density, the fertility of the soil, and what the initial seedling biomass was to start growing them. In Malcom Knapp we are primarily working with Douglas fir, Western red cedar, and Western hemlock, so we'll input values for all these species. We set the planting date to the beginning of the year because we are just starting growing the trees. We then assume an initial number of stem per hectares of 5000 (conservative), and a biomass partitioning among stem, root, and foliage equal to 6, 3, and 1 Mg/ha. Note that because we have 3 species, we'll have 3 different biomass/carbon estimates, one for each species (@tbl-species).
 
 ``` {r species}
 #| label: tbl-species
@@ -223,12 +225,12 @@ head(param)
 
 It's finally time to dive in into the model itself! We have all the data we need, each record associated to a single pixel. One caveat we are going to face now is related to the spatial nature we seek to preserve from `r3PG`. In principle, 3PG was not developed to be a spatial model, but it can take remotely sensed data to extend its scope and become spatial (@coops1998). The workaround to that is to treat each pixel *individually* and get a value for each! To do so, we'll have to do some iterations and run the same model over and over for each pixel. This can be quite tedious if you're working with a large dataset, but our study area is pretty small, so it shouldn't be too bad. 
 
-If you recall from earlier, we kept all NA values, why? Each raster layers we imported is likely to have a number of pixels with NA value for a variety of reasons. However, it is quite unlikely that every raster we imported has the exact same empty pixels Because we must non-empty records for every pixel, we first compile them all together, and during the model iterations we check for the presence of NA. If none, we continue to run it. This way, we preserve the original location of the pixel and avoid running the model if there are missing values. Note that this workaround is straightforward when you work with small amounts of data. When dealing with much larger datasets, you may need to figure out other ways to work this out, simply because of the amount of data you'd work with.
+If you recall from earlier, we kept all NA values, why? Each raster layers we imported is likely to have a number of pixels with NA value for a variety of reasons. However, it is quite unlikely that every raster we imported has the exact same empty pixels. Because we must have non-empty records for every pixel, we first compile them all together, and during the model iterations we check for the presence of NA. If none, we continue to run it. This way, we preserve the original location of the pixel and avoid running the model if there are missing values. Note that this workaround is straightforward when you work with small amounts of data. When dealing with much larger datasets, you may need to figure out other ways to work this out, simply because of the amount of data you'd work with.
 
-To work more efficiently, we will write a function to process each pixel sequentially, and then we'll do some simple code parallelization to take advantage of your machine's core and speed everything up a little. Running the model now is pretty straightforward. Just use the `run_3PG` function, so let's set this up. First, we'll do a single-pixel run to show you how this works if Douglas Fir were planted. Next, we will write the actual model call. We have to fix the climate data such that for 1 pixel we have 12 months of data, which will be repeated for all years until the end of the century. We are going to accomplish that with the `prepare_climate` function.
+To work more efficiently, we will write a function to process each pixel sequentially and then we'll do some simple code parallelization to take advantage of your machine's core and speed everything up a little. Running the model now is pretty straightforward. Just use the `run_3PG` function, so let's set this up. First, we'll do a single-pixel run to show you how this works if Douglas Fir were planted. Next, we will write the actual model call. We have to fix the climate data such that for 1 pixel we have 12 months of data, which will be repeated for all years until the end of the century. We are going to accomplish that with the `prepare_climate` function.
 
 ```{r pixel}
-# year climate for 1 pixel
+# year climate for 1 non-empty pixel
 offset <- 8960
 pixels <- seq(41, offset*12, offset)
 climate_pixel <- climate[pixels, ]
@@ -248,7 +250,9 @@ stem_bc <- output %>%
 stem_bc$carbon <- stem_bc$value / 2
 ```
 
-Great! We finally managed to run 3PG until the end of the century! As you can observe from the output, we have biomass and carbon values in Mg/ha at the end of each month. Let's do some plotting to better see what the trend is over time if Malcom Knapp were planted with only Douglas Fir (@fig-biomass).
+***Question 2: Model development generally comes with a series of underlining assumptions. In our case, we observed a logarithmic growth that plateaus around the year 2060. Briefly describe 4 major data assumptions that we made in developing this model and how they could be more explicitly addressed.***
+
+Great! We finally managed to run 3PG until the end of the century! As you can observe from the output, we have biomass and carbon values in tDM/ha ("tonnes of dry matter per hectare") at the end of each month. Let's do some plotting to better see what the trend is over time if Malcom Knapp were planted with only Douglas Fir (@fig-biomass).
 
 ```{r plot}
 #| label: fig-biomass
@@ -264,7 +268,7 @@ p
 
 It seems we are seeing a nice increase in biomass over time, with a plateau around year 2060. Why is that?
 
-Now to a more fun task. We have to repeat this operation for every single pixel in the area. Let's write a function to do all this and run it for every pixel. We are going to produce quite a few new data here. In the code chunk below we are simply going to repeat what we did for the single-pixel run, and then run multiple instances of it for each pixel, assuming that the only species present if Douglas Fir. We will then make a map of the predicted biomass in January 2010. To do so, we will have to create a new raster object starting from the biomass dataframe we have (@fig-biomass-map). You can achieve this with the package `terra` that we previously used.
+Now to a more fun task. We have to repeat this operation for every single pixel in the area. Let's write a function to do all this and run it for every pixel. We are going to produce quite a few new data here. In the code chunk below we are simply going to repeat what we did for the single-pixel run, and then run multiple instances of it for each pixel, assuming that the only species present is Douglas Fir. We will then make a map of the predicted biomass in January 2100. To do so, we will have to create a new raster object starting from the biomass dataframe we have (@fig-biomass-map). You can achieve this with the package `terra` that we previously used.
 
 ``` {r model}
 #| label: fig-biomass-map
@@ -326,7 +330,7 @@ To repeat this analysis for the other species, we run the same code but change t
 
 ## Part 2: Historical biomass reconstruction
 
-Now that we have completed the first part of the lab, recall we want to know what is today's biomass across Malcolm Knapp. To do that using 3PG, we have to reconstruct the history of the site by retrieving the age of the trees and assume the model's variables remained unchanged for the entire length of the simulation. Thankfully, we have age information for Canada's treed area at a 30m resolution (@maltman) (@fig-age), which is great! Note the presence of gaps due to (mostly) absence of vegetation. Given this piece of information, let's refine the length of the growth period for each pixel from when the trees started growing to the beginning of 2024. We do this because each pixel will have a different age value compared to itsd neighbors. Then, we'll adjust the site and species values to account for the age value of each pixel.
+Now that we have completed the first part of the lab, recall we want to know what is today's biomass across Malcolm Knapp. To do that using 3PG, we have to reconstruct the history of the site by retrieving the age of the trees and assume the model's variables remained unchanged for the entire length of the simulation. Thankfully, we have age information for Canada's treed area at a 30m resolution (@maltman) (@fig-age), which is great! Note the presence of gaps due to (mostly) absence of vegetation. Given this piece of information, let's refine the length of the growth period for each pixel from when the trees started growing to the beginning of 2024. We do this because each pixel will have a different age value compared to its neighbors. Then, we'll adjust the site and species values to account for the age value of each pixel.
 
 ``` {r age}
 #| label: fig-age
@@ -378,6 +382,8 @@ r <- output %>%
 
 plot(r)
 ```
+
+***Question 3: One would expect age to be a pretty good predictor of biomass in coastal regions. However, the output of the 3PG projection seems to suggest otherwise. Briefly, discuss the importance of model validation following development to validate your results. What additional information would be needed?***
 
 Note how the results we obtained closely mirror the predicted biomass in 2100 we estimated earlier. This results show how dependent the model is on the input data. By giving it the same climate dataset, which is drawn by climate projection based on SSP2 (@tbl-sources), the output we obtain is almost identical, except for missing values where we don't have age information and the darker areas in the north-west portion of Malcolm Knapp that have probably been harvested recently.
 
@@ -451,6 +457,8 @@ extracted_biomass <- terra::extract(r,
 comparison <- left_join(extracted_biomass, st_drop_geometry(by_plot), by = 'plot')
 comparison
 ```
+
+***Question 4: Reflect on the comparison between field measurements and remotely sensed data. Answer with a bullet point each the following: (1) What should one consider when comparing field observation to satellite data? (2) What data would you use for what purpose and why? Provide 2 examples for the latter.***
 
 ### References
 
