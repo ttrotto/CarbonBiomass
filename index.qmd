@@ -2,7 +2,7 @@
 title: "GEM500: Carbon and Biomass estimation"
 author: "Tommaso Trotto (tommaso.trotto@ubc.ca)"
 affiliation: "University of British Columbia, Department of Forest Resource Management"
-date: "06/24/2024"
+date: "10/21/2024"
 bibliography: references.bib
 format:
   html:
@@ -13,6 +13,10 @@ format:
     toc-float: true
     toc-location: left
 ---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE)
+```
 
 # Forest biomass and carbon via remote sensing
 
@@ -92,8 +96,7 @@ to <- '2100-01'
 
 # latitude
 lat <- rast('data/Lat.tif')
-# store coordinates for later
-coords <- crds(lat, na.rm = F)
+coords <- crds(lat, na.rm = F)  # store coordinates for later
 names(lat) <- 'latitude'
 lat <- terra::as.data.frame(lat, na.rm = F)
 
@@ -113,7 +116,7 @@ names(asw_i) <- 'asw_i'
 
 # prepare sites
 # the model wants all variable to be explicit
-# if we don't have values, just report a constant
+# if we don't have values, use a constant
 site <- data.frame(latitude = lat,
                    altitude = dem,
                    soil_class = 2,
@@ -330,7 +333,7 @@ To repeat this analysis for the other species, we run the same code but change t
 
 ## Part 2: Historical biomass reconstruction
 
-Now that we have completed the first part of the lab, recall we want to know what is today's biomass across Malcolm Knapp. To do that using 3PG, we have to reconstruct the history of the site by retrieving the age of the trees and assume the model's variables remained unchanged for the entire length of the simulation. Thankfully, we have age information for Canada's treed area at a 30m resolution (@maltman) (@fig-age), which is great! Note the presence of gaps due to (mostly) absence of vegetation. Given this piece of information, let's refine the length of the growth period for each pixel from when the trees started growing to the beginning of 2024. We do this because each pixel will have a different age value compared to its neighbors. Then, we'll adjust the site and species values to account for the age value of each pixel.
+Now that we have completed the first part of the lab, recall we want to know what is today's biomass across Malcolm Knapp. To do that using 3PG, we have to reconstruct the history of the site by retrieving the age of the trees and assume the model's variables remained unchanged for the entire length of the simulation. Thankfully, we have age information for Canada's treed area at a 30m resolution (@maltman2023) (@fig-age), which is great! Note the presence of gaps due to (mostly) absence of vegetation. Given this piece of information, let's refine the length of the growth period for each pixel from when the trees started growing to the beginning of 2024. We do this because each pixel will have a different age value compared to its neighbors. Then, we'll adjust the site and species values to account for the age value of each pixel.
 
 ``` {r age}
 #| label: fig-age
