@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.5.55">
+<meta name="generator" content="quarto-1.4.554">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -35,7 +35,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -102,7 +102,7 @@ div.csl-indent {
 <script src="index_files/libs/leaflet-providers-2.0.0/leaflet-providers_2.0.0.js"></script>
 <script src="index_files/libs/leaflet-providers-plugin-2.2.2/leaflet-providers-plugin.js"></script>
 
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 <script type="text/javascript">
@@ -194,28 +194,28 @@ window.Quarto = {
 
 <section id="forest-biomass-and-carbon-via-remote-sensing" class="level1">
 <h1>Forest biomass and carbon via remote sensing</h1>
-<p>Forest worldwide are integral part of the carbon cycle as sinks and sources of carbon during processes such as growth, decay, disturbance, and renewal. Their role is to capture carbon in the form of CO<sub>2</sub> from the atmosphere through photosyntesis and fix it into more stable organic structures such as roots, stems, leaves, vascular system, as so forth in the form of bounded carbon (carbon chemically bounded to other elements such as hydrogen or nitrogen). On average, the fixed carbon is estimated to make up 50% of the tree biomass, while the rest is mostly water, to oversimplify. Disturbances such as insect infestations, windthrow, and fires instead cause forests to release carbon back into the atmosphere as CO<sub>2</sub>, either by burining the standing wood or initiating decomposition processes. For example, the fire season in 2023 in Canada resulted in the release of roughly 480 Mt of carbon, which corresponds to approaximately 23% of the global wildfire carbon emission for the year. A huge amount! This tells you how important it is to manage forests to limit or prevent the occurrence of these large-scale disturbances. So what can we do? In managed forests, forest interventions influence natural dynamics or carbon sequestring and release by planting, growing, or removing biomass.</p>
-<p>As you may have hinted by now, it is crucial to keep track of carbon stocks at various scales, thus requiring different data sources, understand at what pace carbon moves, and what actors are involved in storing and releasing carbon, especially in face of exhacerbating disturbance regimes resulting from climate change. The heat around carbon has led to the development of various carbon models calibrated for specific objectives (e.g.&nbsp;sequestration/release) and/or site conditions (e.g.&nbsp;boreal forest/tropical forest). In particular, for this lab our focus is on carbon models to estimate the amount sequestred by standing vegetation. These models may take a variety of data types depending on the scale of application. For example, we could work with inventory-based models, where the data is pulled from inventory information regarding individual stands or the entire landscape. This is what the Carbon Budget Model of the Canadian Forest Sector (CBM-CFS3) does. An aspatial carbon model that takes data from the forest inventory to estimate carbon stocks and stock changes. CBM-CDF3 is the tool that is currently used by the CFS to report on the forest carbon balance of Canada’s managed forests (where we have inventory data). However, we are now taking a remote sensing program, so why are we talking about aspatial data? At Loon Lake we worked with data sources and types to answer different questions, so we should try to apply those concepts here. Thankfully, other spatial models have been developed over the years to account for the greater availability or remotely sensed data that go outside managed forest boundaries.</p>
+<p>Forest worldwide are integral part of the carbon cycle as sinks and sources of carbon during processes such as growth, decay, disturbance, and renewal. Their role is to capture carbon in the form of CO<sub>2</sub> from the atmosphere through photosynthesis and fix it into more stable organic structures such as roots, stems, leaves, vascular system, as so forth in the form of bounded carbon (carbon chemically bounded to other elements such as hydrogen or nitrogen). On average, the fixed carbon is estimated to make up 50% of the tree biomass, while the rest is mostly water, to oversimplify. Disturbances such as insect infestations, windthrow, and fires instead cause forests to release carbon back into the atmosphere as CO<sub>2</sub>, either by burning the standing wood or initiating decomposition processes. For example, the fire season in 2023 in Canada resulted in the release of roughly 480 Mt of carbon, which corresponds to approximately 23% of the global wildfire carbon emission for the year. A huge amount! This tells you how important it is to manage forests to limit or prevent the occurrence of these large-scale disturbances. So what can we do? In managed forests, forest interventions influence natural dynamics or carbon sequestering and release by planting, growing, or removing biomass.</p>
+<p>As you may have hinted by now, it is crucial to keep track of carbon stocks at various scales, thus requiring different data sources, understand at what pace carbon moves, and what actors are involved in storing and releasing carbon, especially in face of exacerbating disturbance regimes resulting from climate change. The heat around carbon has led to the development of various carbon models calibrated for specific objectives (e.g.&nbsp;sequestration/release) and/or site conditions (e.g.&nbsp;boreal forest/tropical forest). In particular, for this lab our focus is on carbon models to estimate the amount sequestered by standing vegetation. These models may take a variety of data types depending on the scale of application. For example, we could work with inventory-based models, where the data is pulled from inventory information regarding individual stands or the entire landscape. This is what the Carbon Budget Model of the Canadian Forest Sector (CBM-CFS3) does. An aspatial carbon model that takes data from the forest inventory to estimate carbon stocks and stock changes. CBM-CDF3 is the tool that is currently used by the CFS to report on the forest carbon balance of Canada’s managed forests (where we have inventory data). However, we are now taking a remote sensing program, so why are we talking about aspatial data? At Loon Lake we worked with data sources and types to answer different questions, so we should try to apply those concepts here. Thankfully, other spatial models have been developed over the years to account for the greater availability or remotely sensed data that go outside managed forest boundaries.</p>
 </section>
 <section id="physiological-process-predicting-growth-3pg" class="level1">
 <h1>Physiological Process Predicting Growth (3PG)</h1>
-<p>Physiological Process Predicting Growth (3PG) is a model developed by <span class="citation" data-cites="landsberg1997">Landsberg and Waring (<a href="#ref-landsberg1997" role="doc-biblioref">1997</a>)</span> and subsequentely extended by <span class="citation" data-cites="coops1998">Coops, Waring, and Landsberg (<a href="#ref-coops1998" role="doc-biblioref">1998</a>)</span> to allow remotely sensed data to be pulled in and therefore enlarge the scope and scale of the model. 3PG is a process-based model, which means it is deterministic in nature as it builds predictions based on a fixed series of well-known ecological processes that simulate the natural carbon dynamics in a forestry context, while having a clear ecological interpretations. The power of 3PG comes from ecological processes simplification, while maintaining their validity, and ability to scale with the data. 3PG is well suited for estimating biomass and carbon dynamics from newly grown forest patches. Meaning that 3PG really does its best at growing a forest from the ground up and gives you an estimate of stem, root, and foliage biomass at the end of a user-specified growth period. However, with this lab we are taking a step further by taking an historical perspective on 3PG and try to work out current biomass and carbon estimates assuming that the forest was planted many years ago. In a nutshell, we are going to try reconstructing highly simplified growth dynamics to get an estimate of today’s carbon and biomass content of the forest in Malcom Knapp.</p>
+<p>Physiological Process Predicting Growth (3PG) is a model developed by <span class="citation" data-cites="landsberg1997">Landsberg and Waring (<a href="#ref-landsberg1997" role="doc-biblioref">1997</a>)</span> and subsequently extended by <span class="citation" data-cites="coops1998">Coops, Waring, and Landsberg (<a href="#ref-coops1998" role="doc-biblioref">1998</a>)</span> to allow remotely sensed data to be pulled in and therefore enlarge the scope and scale of the model. 3PG is a process-based model, which means it is deterministic in nature as it builds predictions based on a fixed series of well-known ecological processes that simulate the natural carbon dynamics in a forestry context, while having a clear ecological interpretations. The power of 3PG comes from ecological processes simplification, while maintaining their validity, and ability to scale with the data. 3PG is well suited for estimating biomass and carbon dynamics from newly grown forest patches. Meaning that 3PG really does its best at growing a forest from the ground up and gives you an estimate of stem, root, and foliage biomass at the end of a user-specified growth period. However, with this lab we are taking a step further by taking an historical perspective on 3PG and try to work out current biomass and carbon estimates assuming that the forest was planted many years ago. In a nutshell, we are going to try reconstructing highly simplified growth dynamics to get an estimate of today’s carbon and biomass content of the forest in Malcolm Knapp.</p>
 <p>In summary, the lab is structured into 2 sections:</p>
 <ol type="1">
 <li>Use 3PG to model tree growth until the end of the century considering a newly planted stand</li>
-<li>Take an historical perspective on Malcom Knapp’s forests and try estimating the current biomass and carbon content</li>
+<li>Take an historical perspective on Malcolm Knapp’s forests and try estimating the current biomass and carbon content</li>
 </ol>
 <section id="data-sources-and-preparation" class="level2">
 <h2 class="anchored" data-anchor-id="data-sources-and-preparation">Data sources and preparation</h2>
-<p>Before we dive in, we need to better understand at what scale 3PG operates and what data is therefore needed and where we could retrieve it from. The 3PG implementation we are going to use works is by <span class="citation" data-cites="trotsiuk2020">Trotsiuk, Hartig, and Forrester (<a href="#ref-trotsiuk2020" role="doc-biblioref">2020</a>)</span> (<code>r3PG</code>), works at montly steps, and requires: - Climate data (temperature and precipitation) - Photoshyntetically-active solar radiation (PAR) - Number of frost days (FD) - Available soil water column (ASW) - Soil fertility - Elevation data (DEM - Digital Elevantion Model) - Species growth parameters</p>
+<p>Before we dive in, we need to better understand at what scale 3PG operates and what data is therefore needed and where we could retrieve it from. The 3PG implementation we are going to use works is by <span class="citation" data-cites="trotsiuk2020">Trotsiuk, Hartig, and Forrester (<a href="#ref-trotsiuk2020" role="doc-biblioref">2020</a>)</span> (<code>r3PG</code>), works at monthly steps, and requires: - Climate data (temperature and precipitation) - Photoshyntetically-active solar radiation (PAR) - Number of frost days (FD) - Available soil water column (ASW) - Soil fertility - Elevation data (DEM - Digital Elevation Model) - Species growth parameters</p>
 <p>Ok! That are quite a few things going on here. You may understand how not only do we need to gather this data from a multitude of sources, but also harmonize it into a format that works with <code>r3PG</code>. Thankfully, we already have almost all the data we need (<a href="#tbl-sources" class="quarto-xref">Table&nbsp;1</a>) in the form of raster layers at a 90m spatial resolution, we just need to prepare it. In addition to this data, <code>r3PG</code> requires specific input information we’ll see down the road.</p>
-<div id="tbl-sources" class="quarto-float quarto-figure quarto-figure-center anchored">
+<div id="tbl-sources" class="quarto-float anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-sources-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Table&nbsp;1: Summary and description of data available to run <code>r3PG</code>. *Available at monthly time steps.
 </figcaption>
 <div aria-describedby="tbl-sources-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<table class="caption-top">
+<table class="table">
 <colgroup>
 <col style="width: 13%">
 <col style="width: 58%">
@@ -223,7 +223,7 @@ Table&nbsp;1: Summary and description of data available to run <code>r3PG</code>
 <col style="width: 13%">
 </colgroup>
 <thead>
-<tr>
+<tr class="header">
 <th>Data</th>
 <th>Description</th>
 <th>Units</th>
@@ -231,43 +231,43 @@ Table&nbsp;1: Summary and description of data available to run <code>r3PG</code>
 </tr>
 </thead>
 <tbody>
-<tr>
+<tr class="odd">
 <td>Climate*</td>
 <td>Minimum and maxium temperature and precipitation future predictions based on SSP2</td>
 <td>Celcius, mm</td>
 <td><span class="citation" data-cites="wang2016">Wang et al. (<a href="#ref-wang2016" role="doc-biblioref">2016</a>)</span></td>
 </tr>
-<tr>
+<tr class="even">
 <td>PAR*</td>
 <td>Amount of radiation that activates photosynthesis from 400 to 700 nm based on SSP2.</td>
 <td>Mj/m<sup>2</sup>/d</td>
 <td><span class="citation" data-cites="wang2016">Wang et al. (<a href="#ref-wang2016" role="doc-biblioref">2016</a>)</span></td>
 </tr>
-<tr>
+<tr class="odd">
 <td>FD*</td>
 <td>Number of frost days</td>
 <td>days</td>
 <td><span class="citation" data-cites="wang2016">Wang et al. (<a href="#ref-wang2016" role="doc-biblioref">2016</a>)</span></td>
 </tr>
-<tr>
+<tr class="even">
 <td>ASW (max)</td>
 <td>Max depth of available soil water</td>
 <td>mm</td>
 <td><span class="citation" data-cites="wang2016">Wang et al. (<a href="#ref-wang2016" role="doc-biblioref">2016</a>)</span></td>
 </tr>
-<tr>
+<tr class="odd">
 <td>Soil fertility</td>
 <td>Soil fertility</td>
 <td></td>
 <td></td>
 </tr>
-<tr>
+<tr class="even">
 <td>DEM</td>
 <td>Elevation data</td>
 <td>m</td>
 <td>ASTER satellite</td>
 </tr>
-<tr>
+<tr class="odd">
 <td>Species Parameters</td>
 <td>Species-specific growth parameters for species of interest</td>
 <td></td>
@@ -284,7 +284,7 @@ Table&nbsp;1: Summary and description of data available to run <code>r3PG</code>
 </section>
 <section id="part-1-simulating-forest-growth" class="level2">
 <h2 class="anchored" data-anchor-id="part-1-simulating-forest-growth">Part 1: Simulating forest growth</h2>
-<p>Let’s get us started! We begin this first part of the lab by simulating tree growth from the ground up assuming that Malcom Knapp has been completely harvested and replanted at the beginning of the year. We begin by preparing our <code>sites</code>, that is the area where the trees are planted. A <code>site</code> for <code>r3PG</code> is defined by a set of attributes, including latitude, elevation, soil class, and ASW (minimum, maximum, initial) within a defined growth period. This growth period represents the period the tree will grow for on the site. If we wanted to grow the trees from the ground up, a task 3PG excels at, we would set the begin of the growing period to today until the year we want the model to stop simulating, which for this lab is the end of the century. Remember that for the entire length of the period you must have data because <code>r3PG</code> can not deal with missing attributes. Alternatively, for the sake of this lab, we can assign a constant value and assume it won’t change throughout the growing period. For example, we are giving a soil class of 2 (i.e.&nbsp;sandy soil), an initial ASW equal to the max ASW, and a minimum ASW of 0 millimeter.</p>
+<p>Let’s get us started! We begin this first part of the lab by simulating tree growth from the ground up assuming that Malcolm Knapp has been completely harvested and replanted at the beginning of the year. We begin by preparing our <code>sites</code>, that is the area where the trees are planted. A <code>site</code> for <code>r3PG</code> is defined by a set of attributes, including latitude, elevation, soil class, and ASW (minimum, maximum, initial) within a defined growth period. This growth period represents the period the tree will grow for on the site. If we wanted to grow the trees from the ground up, a task 3PG excels at, we would set the begin of the growing period to today until the year we want the model to stop simulating, which for this lab is the end of the century. Remember that for the entire length of the period you must have data because <code>r3PG</code> can not deal with missing attributes. Alternatively, for the sake of this lab, we can assign a constant value and assume it won’t change throughout the growing period. For example, we are giving a soil class of 2 (i.e.&nbsp;sandy soil), an initial ASW equal to the max ASW, and a minimum ASW of 0 millimeter.</p>
 <p>Note how the raster layers were converted into <code>dataframes</code> and every single entry has now <code>site</code> information associated to it (<a href="#fig-dem" class="quarto-xref">Figure&nbsp;1</a>, <a href="#tbl-site" class="quarto-xref">Table&nbsp;2</a>) to conserve the spatial nature of the model. Furthermore, some entries have NA values. We will see why we are keeping those later.</p>
 <div class="cell">
 <details class="code-fold">
@@ -329,7 +329,7 @@ Table&nbsp;1: Summary and description of data available to run <code>r3PG</code>
 <span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>                   <span class="at">to =</span> to)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<div id="fig-dem" class="quarto-float quarto-figure quarto-figure-center anchored">
+<div id="fig-dem" class="quarto-figure quarto-figure-center quarto-float anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-dem-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="index_files/figure-html/fig-dem-1.png" class="img-fluid figure-img" width="672">
@@ -341,7 +341,7 @@ Figure&nbsp;1: Elevation map (m) for Malcolm Knapp
 </div>
 </div>
 </div>
-<div id="tbl-site" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<div id="tbl-site" class="cell quarto-float anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-site-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Table&nbsp;2: Tabular version of site data for Malcolm Knapp
@@ -359,7 +359,7 @@ Table&nbsp;2: Tabular version of site data for Malcolm Knapp
 </div>
 </figure>
 </div>
-<p>It’s now time to prepare our species dataset! <code>r3PG</code> requires information on when the trees were planted, the planting density, the fertility of the soil, and what the initial seedling biomass was to start growing them. In Malcom Knapp we are primarily working with Douglas fir, Western red cedar, and Western hemlock, so we’ll input values for all these species. We set the planting date to the beginning of the year because we are just starting growing the trees. We then assume an initial number of stem per hectares of 5000 (conservative), and a biomass partitioning among stem, root, and foliage equal to 6, 3, and 1 Mg/ha. Note that because we have 3 species, we’ll have 3 different biomass/carbon estimates, one for each species (<a href="#tbl-species" class="quarto-xref">Table&nbsp;3</a>).</p>
+<p>It’s now time to prepare our species dataset! <code>r3PG</code> requires information on when the trees were planted, the planting density, the fertility of the soil, and what the initial seedling biomass was to start growing them. In Malcolm Knapp we are primarily working with Douglas fir, Western red cedar, and Western hemlock, so we’ll input values for all these species. We set the planting date to the beginning of the year because we are just starting growing the trees. We then assume an initial number of stem per hectares of 5000 (conservative), and a biomass partitioning among stem, root, and foliage equal to 6, 3, and 1 Mg/ha. Note that because we have 3 species, we’ll have 3 different biomass/carbon estimates, one for each species (<a href="#tbl-species" class="quarto-xref">Table&nbsp;3</a>).</p>
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>spp <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">'PSEU.MEN'</span>, <span class="st">'THUJ.PLI'</span>, <span class="st">'TSUG.HET'</span>)  <span class="co"># latin names</span></span>
@@ -388,7 +388,7 @@ Table&nbsp;2: Tabular version of site data for Malcolm Knapp
 <span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">relocate</span>(species)</span>
 <span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(species)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div id="tbl-species" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<div id="tbl-species" class="cell quarto-float anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-species-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Table&nbsp;3: Species dataset for every site in Malcolm Knapp
@@ -441,7 +441,7 @@ Table&nbsp;3: Species dataset for every site in Malcolm Knapp
 <span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(climate)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div id="tbl-climate" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<div id="tbl-climate" class="cell quarto-float anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-climate-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Table&nbsp;4: Climate dataset for every site in Malcolm Knapp
@@ -469,7 +469,7 @@ Table&nbsp;4: Climate dataset for every site in Malcolm Knapp
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">all_of</span>(select_all))</span>
 <span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(param)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div id="tbl-parameters" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<div id="tbl-parameters" class="cell quarto-float anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-parameters-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Table&nbsp;5: Parameter dataset for each of the 3 species of interest in Malcolm Knapp
@@ -519,10 +519,10 @@ Table&nbsp;5: Parameter dataset for each of the 3 species of interest in Malcolm
 </details>
 </div>
 <p><strong><em>Question 2: Model development generally comes with a series of underlining assumptions. In our case, we observed a logarithmic growth that plateaus around the year 2060. Briefly describe 4 major data assumptions that we made in developing this model and how they could be more explicitly addressed.</em></strong></p>
-<p>Great! We finally managed to run 3PG until the end of the century! As you can observe from the output, we have biomass and carbon values in tDM/ha (“tonnes of dry matter per hectare”) at the end of each month. Let’s do some plotting to better see what the trend is over time if Malcom Knapp were planted with only Douglas Fir (<a href="#fig-biomass" class="quarto-xref">Figure&nbsp;2</a>).</p>
+<p>Great! We finally managed to run 3PG until the end of the century! As you can observe from the output, we have biomass and carbon values in tDM/ha (“tonnes of dry matter per hectare”) at the end of each month. Let’s do some plotting to better see what the trend is over time if Malcolm Knapp were planted with only Douglas Fir (<a href="#fig-biomass" class="quarto-xref">Figure&nbsp;2</a>).</p>
 <div class="cell">
 <div class="cell-output-display">
-<div id="fig-biomass" class="quarto-float quarto-figure quarto-figure-center anchored">
+<div id="fig-biomass" class="quarto-figure quarto-figure-center quarto-float anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-biomass-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="index_files/figure-html/fig-biomass-1.png" class="img-fluid figure-img" width="672">
@@ -590,13 +590,13 @@ Figure&nbsp;2: Biomass growth for Douglas Fir from 2024-01 to 2100-01 for 1 pixe
 <span id="cb10-49"><a href="#cb10-49" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(r)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<div id="fig-biomass-map" class="quarto-float quarto-figure quarto-figure-center anchored">
+<div id="fig-biomass-map" class="quarto-figure quarto-figure-center quarto-float anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-biomass-map-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="index_files/figure-html/fig-biomass-map-1.png" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-biomass-map-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;3: Map of biomass prediction (tDM/ha) for Douglas Fir in Malcom Knapp in 2100.
+Figure&nbsp;3: Map of biomass prediction (tDM/ha) for Douglas Fir in Malcolm Knapp in 2100.
 </figcaption>
 </figure>
 </div>
@@ -630,7 +630,7 @@ Figure&nbsp;3: Map of biomass prediction (tDM/ha) for Douglas Fir in Malcom Knap
 <span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>species<span class="sc">$</span>planted <span class="ot">&lt;-</span> from</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<div id="fig-age" class="quarto-float quarto-figure quarto-figure-center anchored">
+<div id="fig-age" class="quarto-figure quarto-figure-center quarto-float anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-age-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="index_files/figure-html/fig-age-1.png" class="img-fluid figure-img" width="672">
@@ -667,13 +667,13 @@ Figure&nbsp;4: Age distribution at 30m for Malcolm Knapp
 <span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(r)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<div id="fig-biomass-today" class="quarto-float quarto-figure quarto-figure-center anchored">
+<div id="fig-biomass-today" class="quarto-figure quarto-figure-center quarto-float anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-biomass-today-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="index_files/figure-html/fig-biomass-today-1.png" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-biomass-today-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;5: Map of biomass prediction (tDM/ha) for Douglas Fir in Malcom Knapp in 2024.
+Figure&nbsp;5: Map of biomass prediction (tDM/ha) for Douglas Fir in Malcolm Knapp in 2024.
 </figcaption>
 </figure>
 </div>
@@ -733,11 +733,11 @@ Figure&nbsp;5: Map of biomass prediction (tDM/ha) for Douglas Fir in Malcom Knap
 <span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>m <span class="ot">&lt;-</span> <span class="fu">plet</span>(<span class="fu">vect</span>(by_plot))</span>
 <span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>m</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div id="fig-plots" class="cell-output-display quarto-float quarto-figure quarto-figure-center anchored">
+<div id="fig-plots" class="cell-output-display quarto-figure quarto-figure-center quarto-float anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-plots-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div class="leaflet html-widget html-fill-item" id="htmlwidget-a3ff72779df3d8c216ee" style="width:100%;height:464px;"></div>
-<script type="application/json" data-for="htmlwidget-a3ff72779df3d8c216ee">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addTiles","args":["https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",null,"Streets",{"minZoom":0,"maxZoom":18,"tileSize":256,"subdomains":"abc","errorTileUrl":"","tms":false,"noWrap":false,"zoomOffset":0,"zoomReverse":false,"opacity":1,"zIndex":1,"detectRetina":false,"attribution":"&copy; <a href=\"https://openstreetmap.org/copyright/\">OpenStreetMap<\/a>,  <a href=\"https://opendatacommons.org/licenses/odbl/\">ODbL<\/a>"}]},{"method":"addProviderTiles","args":["Esri.WorldImagery",null,"Esri.WorldImagery",{"minZoom":0,"maxZoom":18,"tileSize":256,"subdomains":"abc","errorTileUrl":"","tms":false,"noWrap":false,"zoomOffset":0,"zoomReverse":false,"opacity":1,"zIndex":1,"detectRetina":false}]},{"method":"addProviderTiles","args":["OpenTopoMap",null,"OpenTopoMap",{"minZoom":0,"maxZoom":18,"tileSize":256,"subdomains":"abc","errorTileUrl":"","tms":false,"noWrap":false,"zoomOffset":0,"zoomReverse":false,"opacity":1,"zIndex":1,"detectRetina":false}]},{"method":"addPolygons","args":[[[[{"lng":[-138.4456120986246,-138.4456110086183,-138.4456102985177,-138.4456099702689,-138.4456100247717,-138.4456104618764,-138.445611280385,-138.4456124780537,-138.4456140515998,-138.4456159967101,-138.4456183080533,-138.4456209792939,-138.4456240031101,-138.4456273712138,-138.4456310743733,-138.4456351024383,-138.4456394443681,-138.4456440882619,-138.4456490213909,-138.4456542302339,-138.4456597005136,-138.4456654172366,-138.4456713647336,-138.4456775267031,-138.4456838862555,-138.4456904259598,-138.4456971278913,-138.4457039736805,-138.4457109445636,-138.445718021434,-138.4457251848946,-138.445732415311,-138.4457396928652,-138.4457469976101,-138.445754309524,-138.4457616085655,-138.4457688747287,-138.4457760880975,-138.4457832289007,-138.4457902775661,-138.4457972147738,-138.4458040215095,-138.4458106791165,-138.4458171693468,-138.4458234744113,-138.4458295770282,-138.4458354604708,-138.4458411086129,-138.4458465059735,-138.4458516377587,-138.4458564899027,-138.4458610491061,-138.4458653028724,-138.4458692395422,-138.4458728483255,-138.4458761193307,-138.4458790435921,-138.4458816130945,-138.4458838207949,-138.4458856606421,-138.4458871275931,-138.445888217627,-138.4458889277559,-138.4458892560334,-138.4458892015594,-138.4458887644833,-138.4458879460029,-138.4458867483615,-138.4458851748415,-138.4458832297559,-138.4458809184359,-138.4458782472165,-138.4458752234192,-138.4458718553321,-138.4458681521867,-138.445864124133,-138.4458597822116,-138.4458551383235,-138.445850205197,-138.4458449963537,-138.4458395260705,-138.4458338093411,-138.4458278618347,-138.4458216998531,-138.4458153402859,-138.4458088005643,-138.4458020986131,-138.4457952528023,-138.4457882818956,-138.445781205,-138.4457740415129,-138.4457668110689,-138.4457595334864,-138.4457522287128,-138.4457449167701,-138.4457376176999,-138.4457303515086,-138.4457231381125,-138.4457159972831,-138.4457089485929,-138.4457020113622,-138.4456952046054,-138.4456885469794,-138.4456820567325,-138.4456757516539,-138.4456696490257,-138.4456637655746,-138.4456581174269,-138.4456527200637,-138.4456475882789,-138.4456427361384,-138.4456381769414,-138.4456339231844,-138.4456299865267,-138.4456263777582,-138.4456231067704,-138.4456201825286,-138.4456176130479,-138.4456154053711,-138.4456135655491,-138.4456120986246],"lat":[44.19951510894263,44.19950979926977,44.19950445498139,44.19949909072584,44.19949372120618,44.19948836113991,44.19948302521858,44.19947772806749,44.19947248420591,44.19946730800677,44.19946221365766,44.19945721512183,44.19945232609994,44.19944755999241,44.19944292986269,44.19943844840174,44.19943412789278,44.19942998017803,44.19942601662616,44.19942224810078,44.19941868493126,44.19941533688384,44.19941221313535,44.1994093222477,44.19940667214454,44.19940427008959,44.19940212266672,44.19940023576185,44.19939861454681,44.19939726346521,44.19939618622026,44.19939538576457,44.19939486429217,44.19939462323237,44.19939466324583,44.19939498422297,44.1993955852839,44.19939646478129,44.19939762030442,44.19939904868615,44.1994007460114,44.1994027076279,44.19940492815901,44.19940740151851,44.19941012092713,44.19941307893115,44.19941626742285,44.19941967766295,44.19942330030423,44.19942712541728,44.19943114251778,44.19943534059524,44.19943970814293,44.19944423318986,44.19944890333318,44.19945370577234,44.19945862734426,44.19946365455934,44.19946877363829,44.1994739705501,44.19947923105035,44.19948454072055,44.19948988500715,44.19949524926184,44.19950061878166,44.19950597884907,44.19951131477248,44.19951661192646,44.19952185579192,44.19952703199585,44.19953212635043,44.19953712489253,44.19954201392138,44.19954678003648,44.19955141017417,44.19955589164365,44.19956021216141,44.19956435988511,44.19956832344626,44.19957209198081,44.19957565515949,44.19957900321589,44.19958212697313,44.19958501786915,44.19958766798023,44.1995900700425,44.19959221747209,44.19959410438302,44.19959572560339,44.19959707668951,44.1995981539381,44.19959895439644,44.1995994758707,44.1995997169313,44.19959967691769,44.19959935593946,44.19959875487647,44.19959787537611,44.19959671984911,44.19959529146266,44.19959359413193,44.19959163250912,44.19958941197102,44.19958693860399,44.19958421918735,44.19958126117493,44.19957807267435,44.19957466242521,44.19957103977476,44.19956721465248,44.19956319754286,44.19955899945646,44.19955463189999,44.19955010684469,44.1995454366935,44.19954063424692,44.19953571266825,44.19953068544713,44.19952556636288,44.19952036944658,44.19951510894263]}]]],null,"polygons",{"interactive":true,"className":"","stroke":true,"color":"black","weight":2,"opacity":1,"fill":true,"fillColor":"#FF0000","fillOpacity":0.2,"smoothFactor":1,"noClip":false},"plot: 0<br>plot_biomass: 9355.6629223904",null,null,{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null]},{"method":"addLayersControl","args":[["Streets","Esri.WorldImagery","OpenTopoMap"],"polygons",{"collapsed":false,"autoZIndex":true,"position":"topright"}]}],"limits":{"lat":[44.19939462323237,44.1995997169313],"lng":[-138.4458892560334,-138.4456099702689]}},"evals":[],"jsHooks":[]}</script>
+<div class="leaflet html-widget html-fill-item" id="htmlwidget-928a4cbdde1130f02aa5" style="width:100%;height:464px;"></div>
+<script type="application/json" data-for="htmlwidget-928a4cbdde1130f02aa5">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addTiles","args":["https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",null,"Streets",{"minZoom":0,"maxZoom":18,"tileSize":256,"subdomains":"abc","errorTileUrl":"","tms":false,"noWrap":false,"zoomOffset":0,"zoomReverse":false,"opacity":1,"zIndex":1,"detectRetina":false,"attribution":"&copy; <a href=\"https://openstreetmap.org/copyright/\">OpenStreetMap<\/a>,  <a href=\"https://opendatacommons.org/licenses/odbl/\">ODbL<\/a>"}]},{"method":"addProviderTiles","args":["Esri.WorldImagery",null,"Esri.WorldImagery",{"minZoom":0,"maxZoom":18,"tileSize":256,"subdomains":"abc","errorTileUrl":"","tms":false,"noWrap":false,"zoomOffset":0,"zoomReverse":false,"opacity":1,"zIndex":1,"detectRetina":false}]},{"method":"addProviderTiles","args":["OpenTopoMap",null,"OpenTopoMap",{"minZoom":0,"maxZoom":18,"tileSize":256,"subdomains":"abc","errorTileUrl":"","tms":false,"noWrap":false,"zoomOffset":0,"zoomReverse":false,"opacity":1,"zIndex":1,"detectRetina":false}]},{"method":"addPolygons","args":[[[[{"lng":[-138.4456120986246,-138.4456110086183,-138.4456102985177,-138.4456099702689,-138.4456100247717,-138.4456104618764,-138.445611280385,-138.4456124780537,-138.4456140515998,-138.4456159967101,-138.4456183080533,-138.4456209792939,-138.4456240031101,-138.4456273712138,-138.4456310743733,-138.4456351024383,-138.4456394443681,-138.4456440882619,-138.4456490213909,-138.4456542302339,-138.4456597005136,-138.4456654172366,-138.4456713647336,-138.4456775267031,-138.4456838862555,-138.4456904259598,-138.4456971278913,-138.4457039736805,-138.4457109445636,-138.445718021434,-138.4457251848946,-138.445732415311,-138.4457396928652,-138.4457469976101,-138.445754309524,-138.4457616085655,-138.4457688747287,-138.4457760880975,-138.4457832289007,-138.4457902775661,-138.4457972147738,-138.4458040215095,-138.4458106791165,-138.4458171693468,-138.4458234744113,-138.4458295770282,-138.4458354604708,-138.4458411086129,-138.4458465059735,-138.4458516377587,-138.4458564899027,-138.4458610491061,-138.4458653028724,-138.4458692395422,-138.4458728483255,-138.4458761193307,-138.4458790435921,-138.4458816130945,-138.4458838207949,-138.4458856606421,-138.4458871275931,-138.445888217627,-138.4458889277559,-138.4458892560334,-138.4458892015594,-138.4458887644833,-138.4458879460029,-138.4458867483615,-138.4458851748415,-138.4458832297559,-138.4458809184359,-138.4458782472165,-138.4458752234192,-138.4458718553321,-138.4458681521867,-138.445864124133,-138.4458597822116,-138.4458551383235,-138.445850205197,-138.4458449963537,-138.4458395260705,-138.4458338093411,-138.4458278618347,-138.4458216998531,-138.4458153402859,-138.4458088005643,-138.4458020986131,-138.4457952528023,-138.4457882818956,-138.445781205,-138.4457740415129,-138.4457668110689,-138.4457595334864,-138.4457522287128,-138.4457449167701,-138.4457376176999,-138.4457303515086,-138.4457231381125,-138.4457159972831,-138.4457089485929,-138.4457020113622,-138.4456952046054,-138.4456885469794,-138.4456820567325,-138.4456757516539,-138.4456696490257,-138.4456637655746,-138.4456581174269,-138.4456527200637,-138.4456475882789,-138.4456427361384,-138.4456381769414,-138.4456339231844,-138.4456299865267,-138.4456263777582,-138.4456231067704,-138.4456201825286,-138.4456176130479,-138.4456154053711,-138.4456135655491,-138.4456120986246],"lat":[44.19951510894263,44.19950979926977,44.19950445498139,44.19949909072584,44.19949372120618,44.19948836113991,44.19948302521858,44.19947772806749,44.19947248420591,44.19946730800677,44.19946221365766,44.19945721512183,44.19945232609994,44.19944755999241,44.19944292986269,44.19943844840174,44.19943412789278,44.19942998017803,44.19942601662616,44.19942224810078,44.19941868493126,44.19941533688384,44.19941221313535,44.1994093222477,44.19940667214454,44.19940427008959,44.19940212266672,44.19940023576185,44.19939861454681,44.19939726346521,44.19939618622026,44.19939538576457,44.19939486429217,44.19939462323237,44.19939466324583,44.19939498422297,44.1993955852839,44.19939646478129,44.19939762030442,44.19939904868615,44.1994007460114,44.1994027076279,44.19940492815901,44.19940740151851,44.19941012092713,44.19941307893115,44.19941626742285,44.19941967766295,44.19942330030423,44.19942712541728,44.19943114251778,44.19943534059524,44.19943970814293,44.19944423318986,44.19944890333318,44.19945370577234,44.19945862734426,44.19946365455934,44.19946877363829,44.1994739705501,44.19947923105035,44.19948454072055,44.19948988500715,44.19949524926184,44.19950061878166,44.19950597884907,44.19951131477248,44.19951661192646,44.19952185579192,44.19952703199585,44.19953212635043,44.19953712489253,44.19954201392138,44.19954678003648,44.19955141017417,44.19955589164365,44.19956021216141,44.19956435988511,44.19956832344626,44.19957209198081,44.19957565515949,44.19957900321589,44.19958212697313,44.19958501786915,44.19958766798023,44.1995900700425,44.19959221747209,44.19959410438302,44.19959572560339,44.19959707668951,44.1995981539381,44.19959895439644,44.1995994758707,44.1995997169313,44.19959967691769,44.19959935593946,44.19959875487647,44.19959787537611,44.19959671984911,44.19959529146266,44.19959359413193,44.19959163250912,44.19958941197102,44.19958693860399,44.19958421918735,44.19958126117493,44.19957807267435,44.19957466242521,44.19957103977476,44.19956721465248,44.19956319754286,44.19955899945646,44.19955463189999,44.19955010684469,44.1995454366935,44.19954063424692,44.19953571266825,44.19953068544713,44.19952556636288,44.19952036944658,44.19951510894263]}]]],null,"polygons",{"interactive":true,"className":"","stroke":true,"color":"black","weight":2,"opacity":1,"fill":true,"fillColor":"#FF0000","fillOpacity":0.2,"smoothFactor":1,"noClip":false},"plot: 0<br>plot_biomass: 9355.6629223904",null,null,{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null]},{"method":"addLayersControl","args":[["Streets","Esri.WorldImagery","OpenTopoMap"],"polygons",{"collapsed":false,"autoZIndex":true,"position":"topright"}]}],"limits":{"lat":[44.19939462323237,44.1995997169313],"lng":[-138.4458892560334,-138.4456099702689]}},"evals":[],"jsHooks":[]}</script>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-plots-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;6: Georeferenced plots in Malcolm Knapp
@@ -829,7 +829,18 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
     return false;
   }
-  const onCopySuccess = function(e) {
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
     // button target
     const button = e.trigger;
     // don't keep focus
@@ -861,29 +872,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }, 1000);
     // clear code selection
     e.clearSelection();
-  }
-  const getTextToCopy = function(trigger) {
-      const codeEl = trigger.previousElementSibling.cloneNode(true);
-      for (const childEl of codeEl.children) {
-        if (isCodeAnnotation(childEl)) {
-          childEl.remove();
-        }
-      }
-      return codeEl.innerText;
-  }
-  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
-    text: getTextToCopy
   });
-  clipboard.on('success', onCopySuccess);
-  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
-    // For code content inside modals, clipBoardJS needs to be initialized with a container option
-    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
-    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
-      text: getTextToCopy,
-      container: window.document.getElementById('quarto-embedded-source-code-modal')
-    });
-    clipboardModal.on('success', onCopySuccess);
-  }
     var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
     var mailtoRegex = new RegExp(/^mailto:/);
       var filterRegex = new RegExp('/' + window.location.host + '/');
@@ -891,7 +880,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
         return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
     }
     // Inspect non-navigation links and adorn them if external
- 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool)');
     for (var i=0; i<links.length; i++) {
       const link = links[i];
       if (!isInternal(link.href)) {
