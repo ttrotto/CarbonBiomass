@@ -70,7 +70,9 @@ Let's get us started! We begin this first part of the lab by simulating tree gro
 Note how the raster layers were converted into `dataframes` and every single entry has now `site` information associated to it (@fig-dem, @tbl-site) to conserve the spatial nature of the model. Furthermore, some entries have NA values. We will see why we are keeping those later.
 
 ``` {r libraries}
-#| include: false
+#| warning: false
+#| label: fig-dem
+#| fig-cap: "Elevation map (m) for Malcolm Knapp"
 
 library(r3PG)
 library(terra)
@@ -82,11 +84,7 @@ library(purrr)
 library(lubridate)
 library(ggplot2)
 library(parallel)
-```
 
-``` {r sites}
-#| label: fig-dem
-#| fig-cap: "Elevation map (m) for Malcolm Knapp"
 # Note that, while there are many other ways to code these chunks, what we present is a very straightforward way, especially if you do not feel super comfortable with your coding skills.
 
 # time frame
@@ -153,7 +151,7 @@ ftl <- terra::as.data.frame(ftl, na.rm = F)
 species <- data.frame(spp1 = spp[1],
                       spp2 = spp[2],
                       spp3 = spp[3],
-                      planted = "2024-07",
+                      planted = from,
                       fertility = ftl,
                       stems_n = 1700,
                       biom_stem = 6,
@@ -176,8 +174,7 @@ For now that's all we need for the tree species. Let's start working on the clim
 #| label: tbl-climate
 #| tbl-cap: Climate dataset for every site in Malcolm Knapp
 
-# I'll implement a function to make the code
-# less lengthy, but any other approach would work
+# I'll implement a function to make the code less lengthy, but any other approach would work
 needed <- c('Tmin', 'Tmax', 'PPT', 'Rad', 'NFFD')
 build <- function(need) {
   f <- list.files('./data/ssp2',
@@ -196,9 +193,7 @@ build <- function(need) {
     rename(!!sym(need) := value) %>%
     select(-variable)
 }
-climate <- lapply(needed, function(need) {
-  build(need)
-})
+climate <- lapply(needed, build)
 
 # put them in a single dataframe that can be used later on
 climate <- bind_cols(climate)
@@ -386,7 +381,7 @@ r <- output %>%
 plot(r)
 ```
 
-***Question 3: One would expect age to be a pretty good predictor of biomass in coastal regions. However, the output of the 3PG projection seems to suggest otherwise. Briefly, discuss the importance of model validation following development to validate your results. What additional information would be needed?***
+***Question 3: One would expect age to be a pretty good predictor of biomass in coastal regions. However, the output of the 3PG projection seems to suggest otherwise. This stresses the importance of model validation following development to validate your results. What additional information do you think would be needed to make sure we are getting an accurate representation of biomass and carbon in Malcolm Knapp?***
 
 Note how the results we obtained closely mirror the predicted biomass in 2100 we estimated earlier. This results show how dependent the model is on the input data. By giving it the same climate dataset, which is drawn by climate projection based on SSP2 (@tbl-sources), the output we obtain is almost identical, except for missing values where we don't have age information and the darker areas in the north-west portion of Malcolm Knapp that have probably been harvested recently.
 
